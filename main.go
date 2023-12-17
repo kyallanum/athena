@@ -1,0 +1,121 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"slices"
+
+	"github.com/kyallanum/athena/v0.1.0/models"
+	"github.com/kyallanum/athena/v0.1.0/utils"
+)
+
+var CONFIG_FILE = "/home/klanum/athena/examples/apt-term-config.json"
+var LOG_FILE = "/home/klanum/athena/examples/apt-term.log"
+
+func err_check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func resolveRules(contents []string, config *models.Configuration) map[string](map[string][]string) {
+	fmt.Println("Resolving Log File")
+
+	// This is a map containing all strings that were resolved from each line.
+	// Grouped by key in regex, which is further grouped by Rule Name
+	ruleLibrary := make(map[string](map[string][]string))
+
+	for _, rule := range config.Rules {
+		fmt.Println("Resolving Rule:", rule.Name)
+		linesResolved := make([]int, 0)
+		for {
+			currentRuleDict := resolveRuleForFileContents(contents, &linesResolved, &rule)
+			if currentRuleDict == nil {
+				break
+			}
+			// fmt.Println(currentRuleDict)
+
+			utils.AddDictToLibrary(currentRuleDict, &ruleLibrary)
+		}
+	}
+
+	return ruleLibrary
+}
+
+func resolveRuleForFileContents(contents []string, linesResolved *([]int), currentRule *models.Rule) *map[string](map[string]string) {
+	currentSearchTermIndex := 0
+	currentKeys := make(map[string](map[string]string))
+
+	for index, lineContent := range contents {
+		if currentSearchTermIndex == len(currentRule.SearchTerms) {
+			break
+		}
+		if slices.Contains(*linesResolved, index) {
+			continue
+		}
+
+		keyTranslatedRegex := utils.TranslateNames(currentRule.SearchTerms[currentSearchTermIndex], currentKeys)
+
+		result := utils.ResolveRegexpNames(lineContent, keyTranslatedRegex)
+		if result == nil {
+			continue
+		}
+
+		if currentRule.PrintLog {
+			fmt.Printf("%d: %s\n", index+1, lineContent)
+		}
+
+		*linesResolved = append(*linesResolved, index)
+		currentSearchTermIndex++
+
+		for key, value := range *result {
+			if currentKeys[currentRule.Name] == nil {
+				currentKeys[currentRule.Name] = make(map[string]string)
+			}
+			currentKeys[currentRule.Name][key] = value
+		}
+	}
+
+	if len(currentKeys) > 0 {
+		return &currentKeys
+	} else {
+		return nil
+	}
+}
+
+func printSummary(config *models.Configuration, library map[string](map[string][]string)) {
+	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", config.Name)
+	for _, rule := range config.Rules {
+		fmt.Printf("---------- %s Rule ----------\n", rule.Name)
+		for _, summaryString := range rule.Summary {
+			utils.TranslateSummaryLine(summaryString, library)
+		}
+	}
+}
+
+func main() {
+	fmt.Println("Athena v0.1.0 Starting")
+	fmt.Println("Getting Configuration File: ", CONFIG_FILE, "... ")
+	configBytes, err := utils.LoadFileBytes(CONFIG_FILE)
+	err_check(err)
+
+	configuration := &models.Configuration{}
+	err = json.Unmarshal(configBytes, configuration)
+	err_check(err)
+	fmt.Println("Translating Regular Expressions to Go Standards.")
+	for ruleIndex, currentRule := range configuration.Rules {
+		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {
+			utils.TranslateRegex(&currentSearchTerm)
+			configuration.Rules[ruleIndex].SearchTerms[searchTermIndex] = currentSearchTerm
+		}
+	}
+	fmt.Println("Configuration Loaded")
+	fmt.Print("Loading Log File ", LOG_FILE, "... ")
+	logFileContents, err := utils.LoadFileStringSlice(LOG_FILE)
+	err_check(err)
+	fmt.Println("Loaded")
+	fmt.Println()
+	library := resolveRules(logFileContents, configuration)
+	printSummary(configuration, library)
+	// fmt.Println(library)
+}

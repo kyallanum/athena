@@ -1,0 +1,17 @@
+{
+    "name": "Apt Terminal",
+    "rules": [{
+        "name": "GetPackage",
+        "printLog": true,
+        "searchTerms": [
+            "Preparing to unpack ...[\\w/]*/[\\d\\-]*(?<library_name>[\\w\\W]+?)_[\\w\\W]+? ...",
+
+            "Unpacking (?<full_package_name>{{GetPackage[library_name]}}[:\\w]*?) \\((?<library_version>[\\w\\W]+?)\\) over \\([\\w\\W]+?\\) ...",
+
+            "Setting up {{GetPackage[full_package_name]}}[:\\w]*? \\({{GetPackage[library_version]}}\\) ..."
+        ],
+        "summary": [
+            "Number of Packages Installed: {{Count(GetPackage[full_package_name])}}"
+        ]
+    }]
+}
