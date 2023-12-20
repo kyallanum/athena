@@ -7,9 +7,16 @@ import (
 	"strings"
 )
 
-func IsRegexInLine(line string, regex string) bool {
+func IsRegexInLine(line string, regex string) (regexInLine bool, newErr error) {
+	defer func(errRegex string) {
+		if err := recover().(error); err != nil {
+			newErr = fmt.Errorf("an issue occurred when searching the following regex: %s \nError:%w", errRegex, err)
+		}
+	}(regex)
+
 	re := regexp.MustCompile(regex)
-	return re.FindAllString(line, -1) != nil
+	regexInLine = re.FindAllString(line, -1) != nil
+	return regexInLine, newErr
 }
 
 func ResolveRegexpNames(line string, regex string) *map[string]string {
@@ -25,7 +32,6 @@ func ResolveRegexpNames(line string, regex string) *map[string]string {
 		}
 		return &result
 	}
-
 	return nil
 }
 
@@ -64,23 +70,10 @@ func TranslateNames(regex string, names map[string](map[string]string)) string {
 	return regex
 }
 
-func TranslateSummaryLine(summaryString string, library map[string](map[string][]string)) {
-	extractionRegex := `(\{\{[\w\[\]\(\)]+?\}\})`
-	re := regexp.MustCompile(extractionRegex)
-	matches := re.FindAllString(summaryString, -1)
-
-	for _, reference := range matches {
-		translationRegex := `\{\{(Count|)(\(|)([\w]+)\[([\w]+)\](\)|)\}\}`
-		re = regexp.MustCompile(translationRegex)
-		translationMatches := re.FindAllStringSubmatch(reference, -1)
-		fmt.Println(translationMatches)
-	}
-}
-
 func validateStringToReplace(regex string) string {
-	charactersToEscape := `[\*\+\?\\\.\^\[\]\$\&\|]{1}`
+	charactersToEscape := `([\*\+\?\\\.\^\[\]\$\&\|]{1})`
 	re := regexp.MustCompile(charactersToEscape)
 
-	regex = re.ReplaceAllString(regex, `\\$1`)
+	regex = re.ReplaceAllString(regex, `\${1}`)
 	return regex
 }

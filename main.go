@@ -25,8 +25,8 @@ func resolveRules(contents []string, config *models.Configuration) map[string](m
 	// Grouped by key in regex, which is further grouped by Rule Name
 	ruleLibrary := make(map[string](map[string][]string))
 
-	for _, rule := range config.Rules {
-		fmt.Println("Resolving Rule:", rule.Name)
+	for _, rule := range *config.Rules {
+		fmt.Println("Resolving Rule:", *rule.Name)
 		linesResolved := make([]int, 0)
 		for {
 			currentRuleDict := resolveRuleForFileContents(contents, &linesResolved, &rule)
@@ -47,21 +47,21 @@ func resolveRuleForFileContents(contents []string, linesResolved *([]int), curre
 	currentKeys := make(map[string](map[string]string))
 
 	for index, lineContent := range contents {
-		if currentSearchTermIndex == len(currentRule.SearchTerms) {
+		if currentSearchTermIndex == len(*currentRule.SearchTerms) {
 			break
 		}
 		if slices.Contains(*linesResolved, index) {
 			continue
 		}
 
-		keyTranslatedRegex := utils.TranslateNames(currentRule.SearchTerms[currentSearchTermIndex], currentKeys)
+		keyTranslatedRegex := utils.TranslateNames((*currentRule.SearchTerms)[currentSearchTermIndex], currentKeys)
 
 		result := utils.ResolveRegexpNames(lineContent, keyTranslatedRegex)
 		if result == nil {
 			continue
 		}
 
-		if currentRule.PrintLog {
+		if *currentRule.PrintLog {
 			fmt.Printf("%d: %s\n", index+1, lineContent)
 		}
 
@@ -69,10 +69,10 @@ func resolveRuleForFileContents(contents []string, linesResolved *([]int), curre
 		currentSearchTermIndex++
 
 		for key, value := range *result {
-			if currentKeys[currentRule.Name] == nil {
-				currentKeys[currentRule.Name] = make(map[string]string)
+			if currentKeys[*currentRule.Name] == nil {
+				currentKeys[*currentRule.Name] = make(map[string]string)
 			}
-			currentKeys[currentRule.Name][key] = value
+			currentKeys[*currentRule.Name][key] = value
 		}
 	}
 
@@ -84,34 +84,48 @@ func resolveRuleForFileContents(contents []string, linesResolved *([]int), curre
 }
 
 func printSummary(config *models.Configuration, library map[string](map[string][]string)) {
-	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", config.Name)
-	for _, rule := range config.Rules {
-		fmt.Printf("---------- %s Rule ----------\n", rule.Name)
-		for _, summaryString := range rule.Summary {
-			utils.TranslateSummaryLine(summaryString, library)
+	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", *config.Name)
+	for _, rule := range *config.Rules {
+		fmt.Printf("---------- %s Rule ----------\n", *rule.Name)
+		for _, summaryString := range *rule.Summary {
+			fmt.Println(summaryString)
+			// utils.TranslateSummaryLine(summaryString, library)
 		}
 	}
 }
 
 func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("\nAn issue occurred:", err)
+		}
+	}()
+
 	fmt.Println("Athena v0.1.0 Starting")
 	fmt.Println("Getting Configuration File: ", CONFIG_FILE, "... ")
-	configBytes, err := utils.LoadFileBytes(CONFIG_FILE)
+
+	configBytes, err := utils.LoadConfigurationFile(CONFIG_FILE)
 	err_check(err)
 
+	// Parse JSON and validate
 	configuration := &models.Configuration{}
-	err = json.Unmarshal(configBytes, configuration)
+	json.Unmarshal(configBytes, configuration)
+	err = configuration.ValidateConfig()
 	err_check(err)
+
 	fmt.Println("Translating Regular Expressions to Go Standards.")
-	for ruleIndex, currentRule := range configuration.Rules {
-		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {
+
+	// Transform Regex if necessary
+	for ruleIndex := range *configuration.Rules {
+		err_check(err)
+		for searchTermIndex, currentSearchTerm := range *(*configuration.Rules)[ruleIndex].SearchTerms {
 			utils.TranslateRegex(&currentSearchTerm)
-			configuration.Rules[ruleIndex].SearchTerms[searchTermIndex] = currentSearchTerm
+			(*(*configuration.Rules)[ruleIndex].SearchTerms)[searchTermIndex] = currentSearchTerm
 		}
 	}
 	fmt.Println("Configuration Loaded")
 	fmt.Print("Loading Log File ", LOG_FILE, "... ")
-	logFileContents, err := utils.LoadFileStringSlice(LOG_FILE)
+	logFileContents, err := utils.LoadInputFile(LOG_FILE)
 	err_check(err)
 	fmt.Println("Loaded")
 	fmt.Println()
