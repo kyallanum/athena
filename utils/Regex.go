@@ -1,25 +1,13 @@
 package utils
 
 import (
-	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
+
+	"github.com/kyallanum/athena/v0.1.0/models"
 )
 
-func IsRegexInLine(line string, regex string) (regexInLine bool, newErr error) {
-	defer func(errRegex string) {
-		if err := recover().(error); err != nil {
-			newErr = fmt.Errorf("an issue occurred when searching the following regex: %s \nError:%w", errRegex, err)
-		}
-	}(regex)
-
-	re := regexp.MustCompile(regex)
-	regexInLine = re.FindAllString(line, -1) != nil
-	return regexInLine, newErr
-}
-
-func ResolveRegexpNames(line string, regex string) *map[string]string {
+func ResolveLine(line string, regex string) *map[string]string {
 	currentRegexp := regexp.MustCompile(regex)
 	match := currentRegexp.FindStringSubmatch(line)
 	result := make(map[string]string)
@@ -35,30 +23,23 @@ func ResolveRegexpNames(line string, regex string) *map[string]string {
 	return nil
 }
 
-func TranslateRegex(regex *string) {
-	regexAddGolangGroupName := `(\(\?)(\<[\w\W]+?\>)`
-	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
-
-	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
-}
-
-func TranslateNames(regex string, names map[string](map[string]string)) string {
+func translateSearchTermReference(regex string, currentSearchTermData *models.SearchTermData) string {
 	// Matches the pattern: {{RuleName[ReplacedName]}}
-	nameExtractRegex := `({\{(?P<RuleName>[\w]+?)\[(?P<ReplacedName>[\w]+?)\]\}\})`
+	nameExtractRegex := `(\{\{(?P<name_to_replace>[\w]+?)\}\})`
 	re := regexp.MustCompile(nameExtractRegex)
 	matches := re.FindAllStringSubmatch(regex, -1)
 	numMatches := len(matches)
 
-	myMap := make(map[string][]string)
+	keysToLookup := []string{}
 
 	// The first three groups are useless for this case. So get everything after that.
-	for index, match := range matches {
-		myMap["value"+strconv.Itoa(index+1)] = match[2:]
+	for _, match := range matches {
+		keysToLookup = append(keysToLookup, match[2])
 	}
 
 	// Validate all strings to replace and then replace them one by one.
 	for i := 0; i < numMatches; i++ {
-		stringToReplace := names[myMap["value"+strconv.Itoa(i+1)][0]][myMap["value"+strconv.Itoa(i+1)][1]]
+		stringToReplace, _ := currentSearchTermData.GetValue(keysToLookup[i])
 		stringToReplace = validateStringToReplace(stringToReplace)
 		foundString := re.FindString(regex)
 		if foundString != "" {

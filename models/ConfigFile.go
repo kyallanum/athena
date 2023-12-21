@@ -1,5 +1,7 @@
 package models
 
+import "regexp"
+
 // A Configuration struct represents the top level of a JSON configuration file.
 // It has two elements, Name (The type of file to be resolved), and Rules.
 type Configuration struct {
@@ -26,4 +28,20 @@ type Rule struct {
 	PrintLog    bool     `json:"printLog"`
 	SearchTerms []string `json:"searchTerms"`
 	Summary     []string `json:"summary"`
+}
+
+func (config *Configuration) TranslateRegexGroups() {
+	for ruleIndex, currentRule := range config.Rules {
+		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {
+			translateRegex(&currentSearchTerm)
+			config.Rules[ruleIndex].SearchTerms[searchTermIndex] = currentSearchTerm
+		}
+	}
+}
+
+func translateRegex(regex *string) {
+	regexAddGolangGroupName := `(\(\?)(\<[\w\W]+?\>)`
+	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
+
+	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
 }

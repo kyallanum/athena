@@ -10,6 +10,12 @@ type SearchTermData struct {
 	data map[string]string
 }
 
+func (SearchTermData) New() *SearchTermData {
+	return &SearchTermData{
+		data: make(map[string]string),
+	}
+}
+
 func (stdata *SearchTermData) GetKeys() (keys_returned []string) {
 	if len(stdata.data) == 0 {
 		return keys_returned

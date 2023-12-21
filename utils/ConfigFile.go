@@ -30,22 +30,3 @@ func CreateConfiguration(source string) (config *models.Configuration, err error
 
 	return configObject, nil
 }
-
-// func LoadInputFile(fileName string) ([]string, error) {
-// 	file, err := os.Open(fileName)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("LoadInputFile -> Open File: \n\t%w", err)
-// 	}
-// 	defer file.Close()
-
-// 	lines := make([]string, 0)
-// 	scanner := bufio.NewScanner(file)
-// 	for scanner.Scan() {
-// 		lines = append(lines, scanner.Text())
-// 	}
-
-// 	if scanner.Err() != nil {
-// 		return nil, fmt.Errorf("LoadInputFile -> Read File: \n\t%w", scanner.Err())
-// 	}
-// 	return lines, nil
-// }

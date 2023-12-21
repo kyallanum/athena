@@ -14,8 +14,8 @@ func (RuleData) New() RuleData {
 	}
 }
 
-func (rule_data *RuleData) AppendSearchTermData(stdata SearchTermData) {
-	rule_data.st_data_collection = append(rule_data.st_data_collection, stdata)
+func (rule_data *RuleData) AppendSearchTermData(stdata *SearchTermData) {
+	rule_data.st_data_collection = append(rule_data.st_data_collection, *stdata)
 }
 
 func (rule_data *RuleData) AppendSummaryData(summary_line string) {

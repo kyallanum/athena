@@ -9,6 +9,12 @@ type Library struct {
 	rule_data_collection map[string]RuleData
 }
 
+func (Library) New() *Library {
+	return &Library{
+		rule_data_collection: make(map[string]RuleData),
+	}
+}
+
 func (library *Library) GetLibraryKeys() (rule_data_keys []string) {
 	if len(library.rule_data_collection) == 0 {
 		return rule_data_keys
