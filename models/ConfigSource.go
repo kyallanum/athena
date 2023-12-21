@@ -1,10 +1,11 @@
 package models
 
 type IConfigurationSource interface {
-	setSourceType(sourceType string)
-	setSource(source string)
-	getSourceType() string
-	getSource() string
+	SetSourceType(sourceType string)
+	SetSource(source string)
+	GetSourceType() string
+	GetSource() string
+	LoadConfig() ([]byte, error)
 }
 
 type ConfigurationSource struct {
@@ -12,18 +13,18 @@ type ConfigurationSource struct {
 	source      string
 }
 
-func (configSource *ConfigurationSource) getSourceType() string {
+func (configSource *ConfigurationSource) GetSourceType() string {
 	return configSource.source_type
 }
 
-func (configSource *ConfigurationSource) getSource() string {
+func (configSource *ConfigurationSource) GetSource() string {
 	return configSource.source
 }
 
-func (configSource *ConfigurationSource) setSourceType(sourceType string) {
+func (configSource *ConfigurationSource) SetSourceType(sourceType string) {
 	configSource.source_type = sourceType
 }
 
-func (configSource *ConfigurationSource) setSource(source string) {
+func (configSource *ConfigurationSource) SetSource(source string) {
 	configSource.source = source
 }

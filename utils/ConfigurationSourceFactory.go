@@ -26,19 +26,25 @@ func GetSource(source string) (models.IConfigurationSource, error) {
 	if isFile {
 		return models.ConfigFileSource.New(models.ConfigFileSource{}, source), nil
 	}
+
+	//Should never reach this
+	return nil, nil
 }
 
 func verifyUrl(source string) (bool, error) {
 	verifier := urlverifier.NewVerifier()
 
-	_, err := verifier.Verify(source)
+	verifiedUrl, err := verifier.Verify(source)
 	if err != nil {
+		return false, fmt.Errorf("url provided could not be verified: \n\t%w", err)
+	}
+	if !verifiedUrl.IsURL {
 		return false, nil
 	}
 
 	_, err = verifier.CheckHTTP(source)
 	if err != nil {
-		return false, fmt.Errorf("URL provided is not reachable. Please check the URL and try again.")
+		return false, fmt.Errorf("url provided is not reachable. please check the URL and try again")
 	}
 
 	return true, nil
@@ -47,11 +53,11 @@ func verifyUrl(source string) (bool, error) {
 func verifyFilePath(source string) (bool, error) {
 	fileInfo, err := os.Stat(source)
 	if err != nil {
-		return false, fmt.Errorf("Unable to get file information for file: %s. Error: %w", source, err)
+		return false, fmt.Errorf("unable to get file information for file: %s. error: %w", source, err)
 	}
 
 	if fileInfo.Mode().Perm()&0444 != 0444 {
-		return false, fmt.Errorf("%s: File does not have read permissions.", source)
+		return false, fmt.Errorf("%s: file does not have read permissions", source)
 	}
 
 	return true, nil
