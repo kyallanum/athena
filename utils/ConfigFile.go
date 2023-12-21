@@ -12,7 +12,7 @@ func CreateConfiguration(source string) (config *models.Configuration, err error
 		return fmt.Errorf("utils/ConfigFile -> CreateConfiguration: \n\t%w", err)
 	}
 
-	configSource, err := GetSource(source)
+	configSource, err := getSource(source)
 	if err != nil {
 		return nil, wrap_error(err)
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/kyallanum/athena/v0.1.0/models"
 )
 
-func ResolveSearchTerms(logFile *models.LogFile, rule *models.Rule, linesResolved *[]int) (*models.SearchTermData, error) {
+func resolveSearchTerms(logFile *models.LogFile, rule *models.Rule, linesResolved *[]int) (*models.SearchTermData, error) {
 	wrap_error := func(err error) error {
 		return fmt.Errorf("utils/Rule -> ResolveSearchTerms: \n\t%w", err)
 	}
@@ -30,7 +30,7 @@ func ResolveSearchTerms(logFile *models.LogFile, rule *models.Rule, linesResolve
 			return nil, wrap_error(err)
 		}
 
-		result := ResolveLine(currentLine, currentSearchTerm)
+		result := resolveLine(currentLine, currentSearchTerm)
 		if result == nil {
 			continue
 		}

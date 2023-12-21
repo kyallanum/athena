@@ -7,7 +7,7 @@ import (
 	"github.com/kyallanum/athena/v0.1.0/models"
 )
 
-func ResolveLine(line string, regex string) *map[string]string {
+func resolveLine(line string, regex string) *map[string]string {
 	currentRegexp := regexp.MustCompile(regex)
 	match := currentRegexp.FindStringSubmatch(line)
 	result := make(map[string]string)

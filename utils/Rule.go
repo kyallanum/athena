@@ -17,7 +17,7 @@ func ResolveRule(contents *models.LogFile, rule *models.Rule) (*models.RuleData,
 	currentRuleData := models.RuleData.New(models.RuleData{})
 
 	for !allEntriesFound {
-		currentSearchTermData, err := ResolveSearchTerms(contents, rule, &linesResolved)
+		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved)
 		if err != nil {
 			return nil, wrap_error(err)
 		}

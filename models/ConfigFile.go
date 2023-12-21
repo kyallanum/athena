@@ -30,6 +30,8 @@ type Rule struct {
 	Summary     []string `json:"summary"`
 }
 
+// Translates any regex groups with names from (?<name>) syntax to (?P<name>) for
+// Processing in Go
 func (config *Configuration) TranslateRegexGroups() {
 	for ruleIndex, currentRule := range config.Rules {
 		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {

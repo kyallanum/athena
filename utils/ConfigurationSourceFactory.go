@@ -8,7 +8,7 @@ import (
 	"github.com/kyallanum/athena/v0.1.0/models"
 )
 
-func GetSource(source string) (models.IConfigurationSource, error) {
+func getSource(source string) (models.IConfigurationSource, error) {
 	isUrl, err := verifyUrl(source)
 	if err != nil {
 		return nil, err
