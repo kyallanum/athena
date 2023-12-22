@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	models "github.com/kyallanum/athena/v0.1.0/models"
+	config "github.com/kyallanum/athena/v0.1.0/models/config"
+	library "github.com/kyallanum/athena/v0.1.0/models/library"
 	"github.com/kyallanum/athena/v0.1.0/utils"
 )
 
-var CONFIG_FILE = "/home/klanum/athena/examples/apt-term-config.json"
+var CONFIG_FILE = "/home/klanum/athena/examples/apt-term.log"
 var LOG_FILE = "/home/klanum/athena/examples/apt-term.log"
 
 func err_check(err error) {
@@ -16,24 +18,23 @@ func err_check(err error) {
 	}
 }
 
-//
-// func printSummary(config *models.Configuration, library map[string](map[string][]string)) {
-// 	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", *config.Name)
-// 	for _, rule := range *config.Rules {
-// 		fmt.Printf("---------- %s Rule ----------\n", *rule.Name)
-// 		for _, summaryString := range *rule.Summary {
+// func printSummary(config *models.Configuration, library *models.Library) {
+// 	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", config.Name)
+// 	for _, rule := range config.Rules {
+// 		fmt.Printf("---------- %s Rule ----------\n", rule.Name)
+// 		for _, summaryString := range rule.Summary {
 // 			fmt.Println(summaryString)
 // 			// utils.TranslateSummaryLine(summaryString, library)
 // 		}
 // 	}
 // }
 
-func resolveLogFile(contents *models.LogFile, config *models.Configuration) (*models.Library, error) {
+func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*library.Library, error) {
 	wrap_error := func(err error) error {
 		return fmt.Errorf("main -> resolveLogFile: \n\t%w", err)
 	}
 
-	ret_library := models.Library.New(models.Library{})
+	ret_library := library.Library.New(library.Library{})
 
 	fmt.Println("Resolving Log File")
 	for i := 0; i < len(config.Rules); i++ {
@@ -63,14 +64,21 @@ func main() {
 
 	configuration.TranslateRegexGroups()
 	fmt.Println("Configuration Loaded")
+	fmt.Println()
 
 	fmt.Println("Loading Log File: ", LOG_FILE, "... ")
 	logFileContents, err := utils.LoadLogFile(LOG_FILE)
 	err_check(err)
 	fmt.Println("Loaded")
+	fmt.Println()
 
-	resolveLogFile(logFileContents, configuration)
-	// library := resolveRules(logFileContents, configuration)
-	// printSummary(configuration, library)
+	library, err := resolveLogFile(logFileContents, configuration)
+	if err != nil {
+		err_check(err)
+	}
+
+	resolveSummary(configuration, library)
+
+	printSummary(configuration, library)
 	// // fmt.Println(library)
 }

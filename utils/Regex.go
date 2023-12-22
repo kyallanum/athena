@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	library "github.com/kyallanum/athena/v0.1.0/models/library"
 )
 
 func resolveLine(line string, regex string) *map[string]string {
@@ -23,7 +23,7 @@ func resolveLine(line string, regex string) *map[string]string {
 	return nil
 }
 
-func translateSearchTermReference(regex string, currentSearchTermData *models.SearchTermData) string {
+func translateSearchTermReference(regex string, currentSearchTermData *library.SearchTermData) string {
 	// Matches the pattern: {{RuleName[ReplacedName]}}
 	nameExtractRegex := `(\{\{(?P<name_to_replace>[\w]+?)\}\})`
 	re := regexp.MustCompile(nameExtractRegex)

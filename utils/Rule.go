@@ -3,10 +3,12 @@ package utils
 import (
 	"fmt"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	models "github.com/kyallanum/athena/v0.1.0/models"
+	config "github.com/kyallanum/athena/v0.1.0/models/config"
+	library "github.com/kyallanum/athena/v0.1.0/models/library"
 )
 
-func ResolveRule(contents *models.LogFile, rule *models.Rule) (*models.RuleData, error) {
+func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData, error) {
 	wrap_error := func(err error) error {
 		return fmt.Errorf("utils/Rule -> ResolveRule: \n\t%w", err)
 	}
@@ -14,7 +16,7 @@ func ResolveRule(contents *models.LogFile, rule *models.Rule) (*models.RuleData,
 	allEntriesFound := false
 	linesResolved := []int{}
 
-	currentRuleData := models.RuleData.New(models.RuleData{})
+	currentRuleData := library.RuleData.New(library.RuleData{})
 
 	for !allEntriesFound {
 		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved)

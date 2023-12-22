@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	models "github.com/kyallanum/athena/v0.1.0/models"
+	config "github.com/kyallanum/athena/v0.1.0/models/config"
+	library "github.com/kyallanum/athena/v0.1.0/models/library"
 )
 
-func resolveSearchTerms(logFile *models.LogFile, rule *models.Rule, linesResolved *[]int) (*models.SearchTermData, error) {
+func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolved *[]int) (*library.SearchTermData, error) {
 	wrap_error := func(err error) error {
 		return fmt.Errorf("utils/Rule -> ResolveSearchTerms: \n\t%w", err)
 	}
 
-	currentSearchTermData := models.SearchTermData.New(models.SearchTermData{})
+	currentSearchTermData := library.SearchTermData.New(library.SearchTermData{})
 	currentSearchTerm := rule.SearchTerms[0]
 	searchTermTranslated := false
 	for fileIndex, searchTermIndex := 0, 0; fileIndex < logFile.GetLen() && searchTermIndex < len(rule.SearchTerms); fileIndex++ {
