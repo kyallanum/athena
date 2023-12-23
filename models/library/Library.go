@@ -7,12 +7,18 @@ import "fmt"
 // All data that is committed to this library is readonly by default.
 type Library struct {
 	rule_data_collection map[string]RuleData
+	name                 string
 }
 
-func (Library) New() *Library {
+func (Library) New(name string) *Library {
 	return &Library{
 		rule_data_collection: make(map[string]RuleData),
+		name:                 name,
 	}
+}
+
+func (library *Library) GetName() string {
+	return library.name
 }
 
 func (library *Library) GetLibraryKeys() (rule_data_keys []string) {

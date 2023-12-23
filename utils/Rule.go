@@ -16,7 +16,7 @@ func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData
 	allEntriesFound := false
 	linesResolved := []int{}
 
-	currentRuleData := library.RuleData.New(library.RuleData{})
+	currentRuleData := library.RuleData.New(library.RuleData{}, rule.Name)
 
 	for !allEntriesFound {
 		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved)
@@ -28,6 +28,13 @@ func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData
 			currentRuleData.AppendSearchTermData(currentSearchTermData)
 		} else {
 			allEntriesFound = true
+		}
+	}
+
+	for _, summaryLine := range rule.Summary {
+		summaryData := resolveSummaryLine(summaryLine, &currentRuleData)
+		for _, line := range summaryData {
+			currentRuleData.AppendSummaryData(line)
 		}
 	}
 	return &currentRuleData, nil
