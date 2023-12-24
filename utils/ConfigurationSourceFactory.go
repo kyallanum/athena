@@ -5,17 +5,17 @@ import (
 	"os"
 
 	urlverifier "github.com/davidmytton/url-verifier"
-	"github.com/kyallanum/athena/v0.1.0/models"
+	config "github.com/kyallanum/athena/v0.1.0/models/config"
 )
 
-func getSource(source string) (models.IConfigurationSource, error) {
+func getSource(source string) (config.IConfigurationSource, error) {
 	isUrl, err := verifyUrl(source)
 	if err != nil {
 		return nil, err
 	}
 
 	if isUrl {
-		return models.ConfigWebSource.New(models.ConfigWebSource{}, source), nil
+		return config.ConfigWebSource.New(config.ConfigWebSource{}, source), nil
 	}
 
 	isFile, err := verifyFilePath(source)
@@ -24,7 +24,7 @@ func getSource(source string) (models.IConfigurationSource, error) {
 	}
 
 	if isFile {
-		return models.ConfigFileSource.New(models.ConfigFileSource{}, source), nil
+		return config.ConfigFileSource.New(config.ConfigFileSource{}, source), nil
 	}
 
 	//Should never reach this

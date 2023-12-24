@@ -11,9 +11,13 @@ type ConfigFileSource struct {
 }
 
 func (config *ConfigFileSource) LoadConfig() ([]byte, error) {
+	wrap_error := func(err error) error {
+		return fmt.Errorf("unable to load configuration from file: \n\t%w", err)
+	}
+
 	file, err := os.Open(config.source)
 	if err != nil {
-		return nil, fmt.Errorf("ConfigFileSource -> LoadConfig: \n\t%w", err)
+		return nil, wrap_error(err)
 	}
 
 	defer file.Close()
@@ -23,6 +27,11 @@ func (config *ConfigFileSource) LoadConfig() ([]byte, error) {
 
 	for scanner.Scan() {
 		bytes = append(bytes, scanner.Bytes()...)
+	}
+
+	err = scanner.Err()
+	if err != nil {
+		return nil, wrap_error(err)
 	}
 
 	return bytes, nil

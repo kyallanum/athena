@@ -9,9 +9,13 @@ import (
 )
 
 func LoadLogFile(fileName string) (*models.LogFile, error) {
+	wrap_error := func(err error) error {
+		return fmt.Errorf("unable to load log from file: \n\t%w", err)
+	}
+
 	file, err := os.Open(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("LoadInputFile -> Open File: \n\t%w", err)
+		return nil, wrap_error(err)
 	}
 	defer file.Close()
 
@@ -22,7 +26,7 @@ func LoadLogFile(fileName string) (*models.LogFile, error) {
 	}
 
 	if scanner.Err() != nil {
-		return nil, fmt.Errorf("LoadInputFile -> Read File: \n\t%w", scanner.Err())
+		return nil, wrap_error(err)
 	}
 
 	logFileContents := models.LogFile.New(models.LogFile{}, lines)

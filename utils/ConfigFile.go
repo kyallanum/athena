@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	models "github.com/kyallanum/athena/v0.1.0/models/config"
 )
 
 func CreateConfiguration(source string) (config *models.Configuration, err error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("utils/ConfigFile -> CreateConfiguration: \n\t%w", err)
+		return fmt.Errorf("unable to create configuration object: \n\t%w", err)
 	}
 
 	configSource, err := getSource(source)
@@ -27,6 +27,8 @@ func CreateConfiguration(source string) (config *models.Configuration, err error
 	if err != nil {
 		return nil, wrap_error(err)
 	}
+
+	configObject.TranslateRegexGroups()
 
 	return configObject, nil
 }

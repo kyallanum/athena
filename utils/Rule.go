@@ -3,18 +3,20 @@ package utils
 import (
 	"fmt"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	models "github.com/kyallanum/athena/v0.1.0/models"
+	config "github.com/kyallanum/athena/v0.1.0/models/config"
+	library "github.com/kyallanum/athena/v0.1.0/models/library"
 )
 
-func ResolveRule(contents *models.LogFile, rule *models.Rule) (*models.RuleData, error) {
+func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData, error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("utils/Rule -> ResolveRule: \n\t%w", err)
+		return fmt.Errorf("unable to resolve rule %s: \n\t%w", rule.Name, err)
 	}
 
 	allEntriesFound := false
 	linesResolved := []int{}
 
-	currentRuleData := models.RuleData.New(models.RuleData{})
+	currentRuleData := library.RuleData.New(library.RuleData{}, rule.Name)
 
 	for !allEntriesFound {
 		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved)
@@ -26,6 +28,16 @@ func ResolveRule(contents *models.LogFile, rule *models.Rule) (*models.RuleData,
 			currentRuleData.AppendSearchTermData(currentSearchTermData)
 		} else {
 			allEntriesFound = true
+		}
+	}
+
+	for _, summaryLine := range rule.Summary {
+		summaryData, err := resolveSummaryLine(summaryLine, &currentRuleData)
+		if err != nil {
+			return nil, wrap_error(err)
+		}
+		for _, line := range summaryData {
+			currentRuleData.AppendSummaryData(line)
 		}
 	}
 	return &currentRuleData, nil
