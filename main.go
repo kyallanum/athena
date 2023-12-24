@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
 
 	models "github.com/kyallanum/athena/v0.1.0/models"
 	config "github.com/kyallanum/athena/v0.1.0/models/config"
@@ -9,12 +11,27 @@ import (
 	"github.com/kyallanum/athena/v0.1.0/utils"
 )
 
-var CONFIG_FILE = "/home/klanum/athena/examples/apt-term-config.json"
-var LOG_FILE = "/home/klanum/athena/examples/apt-term.log"
-
 func err_check(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+func parseFlags(configFile *string, logFile *string) {
+	var config string
+	var logfile string
+
+	flag.StringVar(&config, "c", "", "")
+	flag.StringVar(&config, "config", "", "")
+	flag.StringVar(&logfile, "l", "", "")
+	flag.StringVar(&logfile, "log-file", "", "")
+	flag.Parse()
+
+	if *configFile == "" {
+		*configFile = config
+	}
+	if *logFile == "" {
+		*logFile = logfile
 	}
 }
 
@@ -64,6 +81,11 @@ func main() {
 			fmt.Println("\nAn issue occurred:", err)
 		}
 	}()
+
+	CONFIG_FILE := os.Getenv("ATHENA_CONFIG_FILE")
+	LOG_FILE := os.Getenv("ATHENA_LOG_FILE")
+
+	parseFlags(&CONFIG_FILE, &LOG_FILE)
 
 	fmt.Println("Athena v0.1.0 Starting")
 
