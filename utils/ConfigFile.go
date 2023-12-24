@@ -9,7 +9,7 @@ import (
 
 func CreateConfiguration(source string) (config *models.Configuration, err error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("utils/ConfigFile -> CreateConfiguration: \n\t%w", err)
+		return fmt.Errorf("unable to create configuration object: \n\t%w", err)
 	}
 
 	configSource, err := getSource(source)

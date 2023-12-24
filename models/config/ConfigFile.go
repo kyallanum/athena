@@ -1,6 +1,9 @@
 package models
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 // A Configuration struct represents the top level of a JSON configuration file.
 // It has two elements, Name (The type of file to be resolved), and Rules.
@@ -42,6 +45,12 @@ func (config *Configuration) TranslateRegexGroups() {
 }
 
 func translateRegex(regex *string) {
+	defer func() {
+		if err := recover(); err != nil {
+			panic(fmt.Errorf("unable to translate regex for Go standards, this is most likely an internal error: \n\t%s", err.(string)))
+		}
+	}()
+
 	regexAddGolangGroupName := `(\(\?)(\<[\w\W]+?\>)`
 	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
 

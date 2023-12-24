@@ -1,19 +1,32 @@
 package utils
 
 import (
+	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	library "github.com/kyallanum/athena/v0.1.0/models/library"
 )
 
-func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) []string {
+func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) ([]string, error) {
+	wrap_error := func(err error) error {
+		return fmt.Errorf("unable to resolve summary line: \n\t%w", err)
+	}
+
 	keys := getSummaryKeys(summaryLine)
+	if !isOneUniqueOperation(keys) {
+		return nil, fmt.Errorf("could not resolve summary. mixing operations is currently not implemented")
+	}
+
 	ret_summary_line := make([]string, 0)
 	expanded := false
 
 	for _, key := range keys {
-		operation := GetOperation(key[1], key[2])
+		operation, err := GetOperation(key[1], key[2])
+		if err != nil {
+			return nil, wrap_error(err)
+		}
 		calculated := operation.CalculateOperation(key[2], *ruleData)
 		for i := 0; i < len(calculated); i++ {
 			// expand the first time
@@ -24,12 +37,17 @@ func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) []string
 		}
 		expanded = true
 	}
-	return ret_summary_line
+	return ret_summary_line, nil
 }
 
 func getSummaryKeys(summaryLine string) [][]string {
-	ret_keys := make([][]string, 0)
+	defer func() {
+		if err := recover(); err != nil {
+			panic(fmt.Errorf("could not get summary keys. this is most likely an internal error: \n\t%s", err.(string)))
+		}
+	}()
 
+	ret_keys := make([][]string, 0)
 	keyRegex := `\{\{(?P<value_1>[\w]+)(\()(?P<value_2>[\w]+)(\))\}\}`
 	re := regexp.MustCompile(keyRegex)
 	matches := re.FindAllStringSubmatch(summaryLine, -1)
@@ -43,4 +61,17 @@ func getSummaryKeys(summaryLine string) [][]string {
 	}
 
 	return ret_keys
+}
+
+func isOneUniqueOperation(keys [][]string) bool {
+	currentKeys := make([]string, 0)
+	for _, key := range keys {
+		currentKeys = append(currentKeys, key[1])
+	}
+
+	ret_unique := slices.CompactFunc(currentKeys, func(i, j string) bool {
+		return strings.EqualFold(i, j)
+	})
+
+	return len(ret_unique) == 1
 }

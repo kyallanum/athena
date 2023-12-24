@@ -10,7 +10,7 @@ import (
 
 func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData, error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("utils/Rule -> ResolveRule: \n\t%w", err)
+		return fmt.Errorf("unable to resolve rule %s: \n\t%w", rule.Name, err)
 	}
 
 	allEntriesFound := false
@@ -32,7 +32,10 @@ func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData
 	}
 
 	for _, summaryLine := range rule.Summary {
-		summaryData := resolveSummaryLine(summaryLine, &currentRuleData)
+		summaryData, err := resolveSummaryLine(summaryLine, &currentRuleData)
+		if err != nil {
+			return nil, wrap_error(err)
+		}
 		for _, line := range summaryData {
 			currentRuleData.AppendSummaryData(line)
 		}

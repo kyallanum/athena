@@ -10,7 +10,7 @@ import (
 
 func LoadLogFile(fileName string) (*models.LogFile, error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("LogFile -> LoadLogFile: \n\t%w", err)
+		return fmt.Errorf("unable to load log from file: \n\t%w", err)
 	}
 
 	file, err := os.Open(fileName)

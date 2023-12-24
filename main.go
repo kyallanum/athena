@@ -20,7 +20,7 @@ func err_check(err error) {
 
 func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*library.Library, error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("main -> resolveLogFile: \n\t%w", err)
+		return fmt.Errorf("unable to resolve log file: \n\t%w", err)
 	}
 
 	ret_library := library.Library.New(library.Library{}, config.Name)
@@ -47,8 +47,12 @@ func printSummary(library *library.Library) {
 		fmt.Printf("Rule: %s\n", rule)
 		ruleData, _ := library.GetRuleData(rule)
 		summaryDataLen := ruleData.GetSummaryDataLen()
-		for i := 0; i < summaryDataLen; i++ {
-			fmt.Println("\t", ruleData.GetSummaryData(i))
+		if summaryDataLen == 0 {
+			fmt.Println("No summary lines provided.")
+		} else {
+			for i := 0; i < summaryDataLen; i++ {
+				fmt.Println("\t", ruleData.GetSummaryData(i))
+			}
 		}
 		fmt.Println()
 	}

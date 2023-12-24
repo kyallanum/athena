@@ -11,8 +11,14 @@ import (
 
 func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolved *[]int) (*library.SearchTermData, error) {
 	wrap_error := func(err error) error {
-		return fmt.Errorf("utils/Rule -> ResolveSearchTerms: \n\t%w", err)
+		return fmt.Errorf("unable to resolve search terms for rule %s: \n\t%w", rule.Name, err)
 	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			panic(wrap_error(fmt.Errorf("%s", err)))
+		}
+	}()
 
 	currentSearchTermData := library.SearchTermData.New(library.SearchTermData{})
 	currentSearchTerm := rule.SearchTerms[0]
@@ -23,7 +29,11 @@ func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolve
 		}
 
 		if !searchTermTranslated {
-			currentSearchTerm = translateSearchTermReference(currentSearchTerm, currentSearchTermData)
+			newSearchTerm, err := translateSearchTermReference(currentSearchTerm, currentSearchTermData)
+			if err != nil {
+				return nil, wrap_error(err)
+			}
+			currentSearchTerm = newSearchTerm
 			searchTermTranslated = true
 		}
 
@@ -42,12 +52,6 @@ func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolve
 		}
 
 		*linesResolved = append(*linesResolved, fileIndex)
-		searchTermIndex++
-		if searchTermIndex == len(rule.SearchTerms) {
-			break
-		}
-		currentSearchTerm = rule.SearchTerms[searchTermIndex]
-		searchTermTranslated = false
 
 		for key, value := range *result {
 			err := currentSearchTermData.AddValue(key, value)
@@ -55,6 +59,13 @@ func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolve
 				return nil, wrap_error(err)
 			}
 		}
+
+		searchTermIndex++
+		if searchTermIndex == len(rule.SearchTerms) {
+			break
+		}
+		currentSearchTerm = rule.SearchTerms[searchTermIndex]
+		searchTermTranslated = false
 	}
 
 	return currentSearchTermData, nil
