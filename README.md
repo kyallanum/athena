@@ -1,4 +1,5 @@
 # [Athena](https://github.com/kyallanum/athena)
+[![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)  
 
 A universal log parser. Weed out the unimportant information.
 
@@ -6,6 +7,9 @@ A universal log parser. Weed out the unimportant information.
 - **Windows x86/amd64**
 - **Mac OS**
 - **Linux x86/amd64**
+
+> [!NOTE]  
+> Currently for Mac OS, the binary must be marked as trusted in order to execute. This binary has not yet been signed.
 
 ## Purpose
 Athena is a product that allows users to look for specific entries in log files. With the use of regular expressions, it both prints out log lines that it has found, along with adding critical information in memory, to then be used later in a summary. This is primarily meant for users that would like a summary of what occurred in a large log file, and to discern the important pieces of a log.
@@ -18,6 +22,12 @@ Athena has three main phases of execution:
 1. File ingest (configuration and log file)
 1. Log File Resolution
 1. Summary Output
+
+To run Athena, two environment variables must be set:
+```
+ATHENA_LOG_FILE=./examples/apt-term.log
+ATHENA_CONFIG_FILE=./examples/apt-term-config.json
+```
 
 ## Configuration File
 An athena configuration file is a JSON file that describes how Athena should process a log file. It makes use of a hierarchy of objects for instructions during execution.
@@ -48,10 +58,14 @@ Rule <Rule Name>:
 ```
 
 **Guidelines for a Rule Summary**:
-1. You can reference the named groups previously resolved in the search phase. This is done with the format ``{{<operation>(<group_name>)}}``
+1. You can reference the named groups previously resolved in the search phase. This is done with the format:  
+ ``{{<operation>(<group_name>)}}``
 1. Operations manipulate the information stored in some way for printing out in the Summary.
 1. This syntax is very limited, and currently only supports one type of operation per line (you cannot combine a count and a print operation on the the same line.)
 
 **Current Supported Operations**:  
 1. Count - Counts the number of times this ``<group_name>`` was extracted during the search phase.
 1. Print - Prints out a line for every instance of ``<group_name>`` that was extracted. If there are two "Print" operations, then the second one's data will match to the first one in each line.
+
+---
+##### Licensed under [Apache 2.0 License](https://opensource.org/license/apache-2-0/) (c) Kyal Lanum
