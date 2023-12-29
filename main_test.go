@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	models "github.com/kyallanum/athena/v0.1.0/models/config"
-	"github.com/kyallanum/athena/v0.1.0/utils"
+	models "github.com/kyallanum/athena/v1.0.0/models/config"
+	"github.com/kyallanum/athena/v1.0.0/utils"
 )
 
 func TestResolveFile(t *testing.T) {

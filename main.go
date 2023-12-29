@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	models "github.com/kyallanum/athena/v0.1.0/models"
-	config "github.com/kyallanum/athena/v0.1.0/models/config"
-	library "github.com/kyallanum/athena/v0.1.0/models/library"
-	"github.com/kyallanum/athena/v0.1.0/utils"
+	models "github.com/kyallanum/athena/v1.0.0/models"
+	config "github.com/kyallanum/athena/v1.0.0/models/config"
+	library "github.com/kyallanum/athena/v1.0.0/models/library"
+	"github.com/kyallanum/athena/v1.0.0/utils"
 )
 
 func err_check(err error) {
@@ -118,7 +118,7 @@ func main() {
 
 	parseFlags(&CONFIG_FILE, &LOG_FILE)
 
-	fmt.Println("Athena v0.1.0 Starting")
+	fmt.Println("Athena v1.0.0 Starting")
 
 	fmt.Println("Getting Configuration File: ", CONFIG_FILE, "...")
 	configuration, err := utils.CreateConfiguration(CONFIG_FILE)
