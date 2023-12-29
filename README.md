@@ -1,5 +1,6 @@
 # [Athena](https://github.com/kyallanum/athena)
-[![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)  
+[![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](https://opensource.org/licenses/Apache-2.0) 
+[![Build](https://img.shields.io/github/actions/workflow/status/kyallanum/athena/go.yml)](https://github.com/kyallanum/athena/actions)  
 
 A universal log parser. Weed out the unimportant information.
 
