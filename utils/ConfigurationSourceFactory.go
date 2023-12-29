@@ -5,7 +5,7 @@ import (
 	"os"
 
 	urlverifier "github.com/davidmytton/url-verifier"
-	config "github.com/kyallanum/athena/v0.1.0/models/config"
+	config "github.com/kyallanum/athena/v1.0.0/models/config"
 )
 
 func getSource(source string) (config.IConfigurationSource, error) {

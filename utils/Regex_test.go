@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	models "github.com/kyallanum/athena/v0.1.0/models/library"
+	models "github.com/kyallanum/athena/v1.0.0/models/library"
 )
 
 func TestResolveLine(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	models "github.com/kyallanum/athena/v0.1.0/models/config"
+	models "github.com/kyallanum/athena/v1.0.0/models/config"
 )
 
 func CreateConfiguration(source string) (config *models.Configuration, err error) {
