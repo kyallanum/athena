@@ -1,6 +1,6 @@
 module github.com/kyallanum/athena/v0.1.0
 
-go 1.21.3
+go 1.21
 
 require github.com/davidmytton/url-verifier v1.0.0
 
