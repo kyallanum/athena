@@ -8,7 +8,7 @@ type RuleData struct {
 	summary_data       []string
 }
 
-func (RuleData) New(name string) RuleData {
+func (RuleData) New() RuleData {
 	return RuleData{
 		st_data_collection: []SearchTermData{},
 	}

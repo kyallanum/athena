@@ -1,7 +1,7 @@
 package models
 
 type ISummaryOperation interface {
-	CalculateOperation(key string, ruleData RuleData) []string
+	CalculateOperation(ruleData RuleData) ([]string, error)
 	GetOperation() string
 	SetOperation(operation string)
 	GetKey() string

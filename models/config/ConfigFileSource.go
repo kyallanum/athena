@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type ConfigFileSource struct {
@@ -15,7 +16,17 @@ func (config *ConfigFileSource) LoadConfig() ([]byte, error) {
 		return fmt.Errorf("unable to load configuration from file: \n\t%w", err)
 	}
 
-	file, err := os.Open(config.source)
+	source := config.source
+
+	if !filepath.IsAbs(config.source) {
+		currentSource, err := filepath.Abs(config.source)
+		if err != nil {
+			return nil, wrap_error(err)
+		}
+		source = currentSource
+	}
+
+	file, err := os.Open(source)
 	if err != nil {
 		return nil, wrap_error(err)
 	}

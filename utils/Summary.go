@@ -27,7 +27,12 @@ func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) ([]strin
 		if err != nil {
 			return nil, wrap_error(err)
 		}
-		calculated := operation.CalculateOperation(key[2], *ruleData)
+
+		calculated, err := operation.CalculateOperation(*ruleData)
+		if err != nil {
+			return nil, wrap_error(err)
+		}
+
 		for i := 0; i < len(calculated); i++ {
 			// expand the first time
 			if !expanded {

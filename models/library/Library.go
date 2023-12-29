@@ -17,8 +17,11 @@ func (Library) New(name string) *Library {
 	}
 }
 
-func (library *Library) GetName() string {
-	return library.name
+func (library *Library) GetName() (string, error) {
+	if library.name == "" {
+		return "", fmt.Errorf("Library does not have a name assigned")
+	}
+	return library.name, nil
 }
 
 func (library *Library) GetLibraryKeys() (rule_data_keys []string) {

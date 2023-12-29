@@ -35,19 +35,27 @@ type Rule struct {
 
 // Translates any regex groups with names from (?<name>) syntax to (?P<name>) for
 // Processing in Go
-func (config *Configuration) TranslateRegexGroups() {
+func (config *Configuration) TranslateConfiguration() error {
 	for ruleIndex, currentRule := range config.Rules {
 		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {
-			translateRegex(&currentSearchTerm)
+			err := translateRegex(&currentSearchTerm)
+			if err != nil {
+				return err
+			}
 			config.Rules[ruleIndex].SearchTerms[searchTermIndex] = currentSearchTerm
 		}
 	}
+	return nil
 }
 
-func translateRegex(regex *string) {
+func translateRegex(regex *string) error {
+	if *regex == "" {
+		return fmt.Errorf("empty search terms are not allowed")
+	}
+
 	defer func() {
 		if err := recover(); err != nil {
-			panic(fmt.Errorf("unable to translate regex for Go standards, this is most likely an internal error: \n\t%s", err.(string)))
+			panic(fmt.Errorf("unable to translate regex: \"%s\" for Go standards, this is most likely an internal error: \n\t%s", *regex, err.(string)))
 		}
 	}()
 
@@ -55,4 +63,6 @@ func translateRegex(regex *string) {
 	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
 
 	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
+
+	return nil
 }

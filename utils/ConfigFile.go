@@ -28,7 +28,10 @@ func CreateConfiguration(source string) (config *models.Configuration, err error
 		return nil, wrap_error(err)
 	}
 
-	configObject.TranslateRegexGroups()
+	err = configObject.TranslateConfiguration()
+	if err != nil {
+		return nil, wrap_error(err)
+	}
 
 	return configObject, nil
 }
