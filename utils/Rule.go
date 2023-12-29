@@ -3,9 +3,9 @@ package utils
 import (
 	"fmt"
 
-	models "github.com/kyallanum/athena/v0.1.0/models"
-	config "github.com/kyallanum/athena/v0.1.0/models/config"
-	library "github.com/kyallanum/athena/v0.1.0/models/library"
+	models "github.com/kyallanum/athena/v1.0.0/models"
+	config "github.com/kyallanum/athena/v1.0.0/models/config"
+	library "github.com/kyallanum/athena/v1.0.0/models/library"
 )
 
 func ResolveRule(contents *models.LogFile, rule *config.Rule) (*library.RuleData, error) {

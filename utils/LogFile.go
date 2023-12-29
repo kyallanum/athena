@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kyallanum/athena/v0.1.0/models"
+	"github.com/kyallanum/athena/v1.0.0/models"
 )
 
 func LoadLogFile(fileName string) (*models.LogFile, error) {

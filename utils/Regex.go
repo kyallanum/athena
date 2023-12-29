@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	library "github.com/kyallanum/athena/v0.1.0/models/library"
+	library "github.com/kyallanum/athena/v1.0.0/models/library"
 )
 
 // func resolveLine determines whether the current log line matches a
