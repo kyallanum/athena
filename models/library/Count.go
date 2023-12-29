@@ -1,28 +1,39 @@
 package models
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Count struct {
 	SummaryOperation
 }
 
-func (count *Count) CalculateOperation(key string, ruleData RuleData) []string {
+func (count *Count) CalculateOperation(ruleData RuleData) ([]string, error) {
 	searchTermLen := ruleData.GetSearchTermDataLen()
+
+	if searchTermLen == 0 {
+		return nil, fmt.Errorf("rule does not have any search term data stored")
+	}
 
 	searchTermCount := 0
 
 	for index := 0; index < searchTermLen; index++ {
 		currentSearchTermData := ruleData.GetSearchTermData(index)
-		_, err := currentSearchTermData.GetValue(key)
+		_, err := currentSearchTermData.GetValue(count.key)
 		if err != nil {
 			continue
 		}
 		searchTermCount++
 	}
 
+	if searchTermCount == 0 {
+		return nil, fmt.Errorf("this value was never extracted during search phase")
+	}
+
 	ret_value := make([]string, 0)
 	ret_value = append(ret_value, strconv.Itoa(searchTermCount))
-	return ret_value
+	return ret_value, nil
 }
 
 func (Count) New(key string) ISummaryOperation {

@@ -17,7 +17,7 @@ func err_check(err error) {
 	}
 }
 
-func parseFlags(configFile *string, logFile *string) {
+func parseFlags(configFile *string, logFile *string) error {
 	var config string
 	var logfile string
 
@@ -33,11 +33,31 @@ func parseFlags(configFile *string, logFile *string) {
 	if *logFile == "" {
 		*logFile = logfile
 	}
+
+	if *configFile == "" {
+		return fmt.Errorf("configuration file was not specified")
+	}
+
+	if *logFile == "" {
+		return fmt.Errorf("log file was not specified")
+	}
+
+	return nil
 }
 
 func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*library.Library, error) {
 	wrap_error := func(err error) error {
 		return fmt.Errorf("unable to resolve log file: \n\t%w", err)
+	}
+
+	if contents == nil || contents.GetLen() == 0 {
+		return nil, fmt.Errorf("log file contains no contents")
+	} else if config == nil || (config.Name == "" && config.Rules == nil) {
+		return nil, fmt.Errorf("configuration file has no contents")
+	} else if config.Name == "" {
+		return nil, fmt.Errorf("configuration file contains no log name")
+	} else if config.Rules == nil || len(config.Rules) == 0 {
+		return nil, fmt.Errorf("configuration does not have any rules")
 	}
 
 	ret_library := library.Library.New(library.Library{}, config.Name)
@@ -57,8 +77,17 @@ func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*li
 	return ret_library, nil
 }
 
-func printSummary(library *library.Library) {
-	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", library.GetName())
+func printSummary(library *library.Library) error {
+	wrap_error := func(err error) error {
+		return fmt.Errorf("unable to print summary: \n\t%w", err)
+	}
+
+	libraryName, err := library.GetName()
+	if err != nil {
+		return wrap_error(err)
+	}
+
+	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", libraryName)
 	libraryKeys := library.GetLibraryKeys()
 	for _, rule := range libraryKeys {
 		fmt.Printf("Rule: %s\n", rule)
@@ -73,6 +102,8 @@ func printSummary(library *library.Library) {
 		}
 		fmt.Println()
 	}
+
+	return nil
 }
 
 func main() {
@@ -100,8 +131,8 @@ func main() {
 	fmt.Println("Log File Loaded")
 
 	library, err := resolveLogFile(logFileContents, configuration)
-	if err != nil {
-		err_check(err)
-	}
-	printSummary(library)
+	err_check(err)
+
+	err = printSummary(library)
+	err_check(err)
 }
