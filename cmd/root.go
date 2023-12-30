@@ -14,9 +14,9 @@ import (
 var configFile, logFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "athena [flags]",
-	Short: "A text and log file parser to discern important information",
-  SilenceUsage: true,
+	Use:          "athena [flags]",
+	Short:        "A text and log file parser to discern important information",
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(configFile) == 0 {
 			return fmt.Errorf("")

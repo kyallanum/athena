@@ -6,6 +6,6 @@ import (
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-    return
+		return
 	}
 }
