@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"os"
@@ -11,8 +11,8 @@ import (
 func TestResolveFile(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
-	configuration, _ := utils.CreateConfiguration("./examples/apt-term-config.json")
+	logFile, _ := utils.LoadLogFile("../examples/apt-term.log")
+	configuration, _ := utils.CreateConfiguration("../examples/apt-term-config.json")
 
 	_, err := resolveLogFile(logFile, configuration)
 
@@ -25,8 +25,8 @@ func TestResolveLogFileBadLog(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
-	logFile, _ := utils.LoadLogFile("./examples/apt-term-bad.log")
-	configuration, _ := utils.CreateConfiguration("./examples/apt-term-config.json")
+	logFile, _ := utils.LoadLogFile("../examples/apt-term-bad.log")
+	configuration, _ := utils.CreateConfiguration("../examples/apt-term-config.json")
 
 	_, err := resolveLogFile(logFile, configuration)
 
@@ -39,8 +39,8 @@ func TestResolveLogFileBadConfig(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
-	configuration, _ := utils.CreateConfiguration("./examples/apt-term-config-bad.json")
+	logFile, _ := utils.LoadLogFile("../examples/apt-term.log")
+	configuration, _ := utils.CreateConfiguration("../examples/apt-term-config-bad.json")
 
 	_, err := resolveLogFile(logFile, configuration)
 
@@ -50,7 +50,7 @@ func TestResolveLogFileBadConfig(t *testing.T) {
 }
 
 func TestResolveLogFileNoConfigName(t *testing.T) {
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
+	logFile, _ := utils.LoadLogFile("../examples/apt-term.log")
 	configuration := &models.Configuration{
 		Rules: make([]models.Rule, 1),
 	}
@@ -63,7 +63,7 @@ func TestResolveLogFileNoConfigName(t *testing.T) {
 }
 
 func TestResolveLogFileNoConfigRules(t *testing.T) {
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
+	logFile, _ := utils.LoadLogFile("../examples/apt-term.log")
 	configuration := &models.Configuration{
 		Name: "test",
 	}
