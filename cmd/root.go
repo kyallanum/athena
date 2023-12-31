@@ -35,9 +35,8 @@ func Execute() error {
 		}
 	}
 
-	if err := rootCmd.Execute(); err != nil {
-		return err
-	}
+	err := rootCmd.Execute()
+  errCheck(err)
 	fmt.Println("Athena v1.0.0 Starting")
 
 	fmt.Println("Getting Configuration File: ", configFile, "...")
