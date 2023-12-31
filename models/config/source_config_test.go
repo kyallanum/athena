@@ -1,4 +1,4 @@
-package utils
+package models
 
 import (
 	"fmt"
@@ -7,9 +7,9 @@ import (
 )
 
 func TestGetSourceFile(t *testing.T) {
-	source := "../examples/apt-term-config.json"
+	source := "../../examples/apt-term-config.json"
 
-	configSource, err := getSource(source)
+	configSource, err := Source(source)
 	fmt.Println(reflect.TypeOf(configSource).String())
 	if err != nil {
 		t.Errorf("Error returned from getSource when it shouldn't have: \n\t%s", err.Error())
@@ -21,15 +21,15 @@ func TestGetSourceFile(t *testing.T) {
 }
 
 func TestGetSourceFileBadFile(t *testing.T) {
-	source := "../examples/apt-term.json"
+	source := "../../examples/apt-term.json"
 
-	_, err := getSource(source)
+	_, err := Source(source)
 
 	if err == nil {
 		t.Errorf("No error was returned when one should have been.")
 	}
 
-	if err.Error() != "unable to get file information for file: ../examples/apt-term.json. error: stat ../examples/apt-term.json: no such file or directory" {
+	if err.Error() != "unable to get file information for file: ../../examples/apt-term.json. error: stat ../../examples/apt-term.json: no such file or directory" {
 		t.Errorf("Incorrect error returned when attempting to stat a non-existant file.")
 	}
 }
@@ -37,7 +37,7 @@ func TestGetSourceFileBadFile(t *testing.T) {
 func TestGetSourceWeb(t *testing.T) {
 	source := "http://example.org"
 
-	configWeb, err := getSource(source)
+	configWeb, err := Source(source)
 	if err != nil {
 		t.Errorf("Error returned from getSource when it shouldn't have: \n\t%s", err.Error())
 	}
@@ -50,7 +50,7 @@ func TestGetSourceWeb(t *testing.T) {
 func TestGetSourceWebBadAddress(t *testing.T) {
 	source := "http://192.168.0.1/index.html"
 
-	_, err := getSource(source)
+	_, err := Source(source)
 
 	if err == nil {
 		t.Errorf("Error not returned from getSource when one should have")

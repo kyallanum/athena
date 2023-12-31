@@ -10,20 +10,20 @@ type ConfigWebSource struct {
 	ConfigurationSource
 }
 
-func (config *ConfigWebSource) LoadConfig() ([]byte, error) {
-	wrap_error := func(err error) error {
+func (config *ConfigWebSource) Config() ([]byte, error) {
+	wrapError := func(err error) error {
 		return fmt.Errorf("unable to create configuration for web source: \n\t%w", err)
 	}
 	url := config.source
 
 	response, err := http.Get(url)
 	if err != nil {
-		return nil, wrap_error(err)
+		return nil, wrapError(err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return nil, wrap_error(fmt.Errorf("received status code %d when attempting to get file: %s", response.StatusCode, url))
+		return nil, wrapError(fmt.Errorf("received status code %d when attempting to get file: %s", response.StatusCode, url))
 	}
 
 	data, _ := io.ReadAll(response.Body)

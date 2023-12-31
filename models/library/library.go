@@ -17,14 +17,14 @@ func (Library) New(name string) *Library {
 	}
 }
 
-func (library *Library) GetName() (string, error) {
+func (library *Library) Name() (string, error) {
 	if library.name == "" {
 		return "", fmt.Errorf("Library does not have a name assigned")
 	}
 	return library.name, nil
 }
 
-func (library *Library) GetLibraryKeys() (rule_data_keys []string) {
+func (library *Library) LibraryKeys() (rule_data_keys []string) {
 	if len(library.rule_data_collection) == 0 {
 		return rule_data_keys
 	}
@@ -39,7 +39,7 @@ func (library *Library) GetLibraryKeys() (rule_data_keys []string) {
 	return rule_data_keys
 }
 
-func (library *Library) GetRuleData(key string) (ret_rule_data RuleData, err error) {
+func (library *Library) RuleData(key string) (ret_rule_data RuleData, err error) {
 	ret_rule_data, success := library.rule_data_collection[key]
 	if !success {
 		err = fmt.Errorf("could not find key: %s in library", key)

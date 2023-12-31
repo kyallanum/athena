@@ -9,15 +9,15 @@ type Print struct {
 func (print *Print) CalculateOperation(ruleData RuleData) ([]string, error) {
 	ret_value := make([]string, 0)
 
-	st_data_len := ruleData.GetSearchTermDataLen()
+	st_data_len := ruleData.SearchTermDataLen()
 
 	if st_data_len == 0 {
 		return nil, fmt.Errorf("rule does not have any search term data stored")
 	}
 
 	for i := 0; i < st_data_len; i++ {
-		currentRuleData := ruleData.GetSearchTermData(i)
-		searchTermData, err := currentRuleData.GetValue(print.key)
+		currentRuleData := ruleData.SearchTermData(i)
+		searchTermData, err := currentRuleData.Value(print.key)
 		if err != nil {
 			continue
 		}

@@ -56,7 +56,7 @@ func translateSearchTermReference(regex string, currentSearchTermData *library.S
 
 	// Validate all strings to replace and then replace them one by one.
 	for i := 0; i < numMatches; i++ {
-		stringToReplace, err := currentSearchTermData.GetValue(strings.TrimSpace(strings.ToLower(keysToLookup[i])))
+		stringToReplace, err := currentSearchTermData.Value(strings.TrimSpace(strings.ToLower(keysToLookup[i])))
 		if err != nil {
 			return "", fmt.Errorf("an error occurred when translating a search term reference. \n\tthe following key was not registered in a previous search term: %s", keysToLookup[i])
 		}

@@ -16,7 +16,7 @@ func (SearchTermData) New() *SearchTermData {
 	}
 }
 
-func (stdata *SearchTermData) GetKeys() (keys_returned []string) {
+func (stdata *SearchTermData) Keys() (keys_returned []string) {
 	if len(stdata.data) == 0 {
 		return keys_returned
 	}
@@ -32,7 +32,7 @@ func (stdata *SearchTermData) GetKeys() (keys_returned []string) {
 	return keys_returned
 }
 
-func (stdata *SearchTermData) GetValue(key string) (ret_data string, err error) {
+func (stdata *SearchTermData) Value(key string) (ret_data string, err error) {
 	ret_data, success := stdata.data[key]
 	if !success {
 		err = fmt.Errorf("could not find key: %s in searchtermdata", key)

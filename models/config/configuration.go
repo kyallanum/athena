@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 )
@@ -65,4 +66,33 @@ func translateRegex(regex *string) error {
 	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
 
 	return nil
+}
+
+func CreateConfiguration(source string) (config *Configuration, err error) {
+	wrapError := func(err error) error {
+		return fmt.Errorf("unable to create configuration object: \n\t%w", err)
+	}
+
+	configSource, err := Source(source)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	configFile, err := configSource.Config()
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	configObject := &Configuration{}
+	err = json.Unmarshal(configFile, configObject)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	err = configObject.TranslateConfiguration()
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	return configObject, nil
 }

@@ -4,26 +4,26 @@ import (
 	"fmt"
 	"slices"
 
-	models "github.com/kyallanum/athena/v1.0.0/models"
 	config "github.com/kyallanum/athena/v1.0.0/models/config"
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
+	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
 )
 
-func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolved *[]int) (*library.SearchTermData, error) {
-	wrap_error := func(err error) error {
+func resolveSearchTerms(logFile *logs.LogFile, rule *config.Rule, linesResolved *[]int) (*library.SearchTermData, error) {
+	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve search terms for rule %s: \n\t%w", rule.Name, err)
 	}
 
 	defer func() {
 		if err := recover(); err != nil {
-			panic(wrap_error(fmt.Errorf("%s", err)))
+			panic(wrapError(fmt.Errorf("%s", err)))
 		}
 	}()
 
 	currentSearchTermData := library.SearchTermData.New(library.SearchTermData{})
 	currentSearchTerm := rule.SearchTerms[0]
 	searchTermTranslated := false
-	for fileIndex, searchTermIndex := 0, 0; fileIndex < logFile.GetLen() && searchTermIndex < len(rule.SearchTerms); fileIndex++ {
+	for fileIndex, searchTermIndex := 0, 0; fileIndex < logFile.Len() && searchTermIndex < len(rule.SearchTerms); fileIndex++ {
 		if slices.Contains(*linesResolved, fileIndex) {
 			continue
 		}
@@ -31,15 +31,15 @@ func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolve
 		if !searchTermTranslated {
 			newSearchTerm, err := translateSearchTermReference(currentSearchTerm, currentSearchTermData)
 			if err != nil {
-				return nil, wrap_error(err)
+				return nil, wrapError(err)
 			}
 			currentSearchTerm = newSearchTerm
 			searchTermTranslated = true
 		}
 
-		currentLine, err := logFile.GetLineAtIndex(fileIndex)
+		currentLine, err := logFile.LineAtIndex(fileIndex)
 		if err != nil {
-			return nil, wrap_error(err)
+			return nil, wrapError(err)
 		}
 
 		result := resolveLine(currentLine, currentSearchTerm)
@@ -56,7 +56,7 @@ func resolveSearchTerms(logFile *models.LogFile, rule *config.Rule, linesResolve
 		for key, value := range *result {
 			err := currentSearchTermData.AddValue(key, value)
 			if err != nil {
-				return nil, wrap_error(err)
+				return nil, wrapError(err)
 			}
 		}
 

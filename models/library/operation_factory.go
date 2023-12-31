@@ -2,9 +2,9 @@ package models
 
 type ISummaryOperation interface {
 	CalculateOperation(ruleData RuleData) ([]string, error)
-	GetOperation() string
+	Operation() string
 	SetOperation(operation string)
-	GetKey() string
+	Key() string
 	SetKey(key string)
 }
 
@@ -13,7 +13,7 @@ type SummaryOperation struct {
 	key       string
 }
 
-func (summaryKey *SummaryOperation) GetOperation() string {
+func (summaryKey *SummaryOperation) Operation() string {
 	return summaryKey.operation
 }
 
@@ -21,7 +21,7 @@ func (summaryKey *SummaryOperation) SetOperation(operation string) {
 	summaryKey.operation = operation
 }
 
-func (summaryKey *SummaryOperation) GetKey() string {
+func (summaryKey *SummaryOperation) Key() string {
 	return summaryKey.key
 }
 

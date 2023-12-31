@@ -24,14 +24,20 @@ Athena has three main phases of execution:
 1. Log File Resolution
 1. Summary Output
 
-To run Athena, two environment variables must be set:
+To run Athena, you can use either environment variables, or Command Line Flags. As a rule, environment variables take precedence over command line flags:
 ```
 ATHENA_LOG_FILE=./examples/apt-term.log
 ATHENA_CONFIG_FILE=./examples/apt-term-config.json
 ```
 
+or:
+
+```
+./athena -c ./path/to/config.json -l ./path/to/file.log
+```
+
 ## Configuration File
-An athena configuration file is a JSON file that describes how Athena should process a log file. It makes use of a hierarchy of objects for instructions during execution.
+An athena configuration file is a JSON file that describes how Athena should process a log file. It makes use of a hierarchy of objects for instructions during execution. This can either be from a URL or a local file.
 
 ### The Log File
 The top level of the configuration file is at the Log file level. This holds two different pieces of information. The name and the rules for the log file.

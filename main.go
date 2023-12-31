@@ -3,35 +3,36 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
-	models "github.com/kyallanum/athena/v1.0.0/models"
 	config "github.com/kyallanum/athena/v1.0.0/models/config"
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
+	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
 	"github.com/kyallanum/athena/v1.0.0/utils"
 )
 
-func err_check(err error) {
+func errCheck(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
 func parseFlags(configFile *string, logFile *string) error {
-	var config string
-	var logfile string
+	var configFlag string
+	var logFlag string
 
-	flag.StringVar(&config, "c", "", "")
-	flag.StringVar(&config, "config", "", "")
-	flag.StringVar(&logfile, "l", "", "")
-	flag.StringVar(&logfile, "log-file", "", "")
+	flag.StringVar(&configFlag, "c", "", "")
+	flag.StringVar(&configFlag, "config", "", "")
+	flag.StringVar(&logFlag, "l", "", "")
+	flag.StringVar(&logFlag, "log-file", "", "")
 	flag.Parse()
 
 	if *configFile == "" {
-		*configFile = config
+		*configFile = configFlag
 	}
 	if *logFile == "" {
-		*logFile = logfile
+		*logFile = logFlag
 	}
 
 	if *configFile == "" {
@@ -45,12 +46,12 @@ func parseFlags(configFile *string, logFile *string) error {
 	return nil
 }
 
-func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*library.Library, error) {
-	wrap_error := func(err error) error {
+func resolveLogFile(contents *logs.LogFile, config *config.Configuration) (*library.Library, error) {
+	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve log file: \n\t%w", err)
 	}
 
-	if contents == nil || contents.GetLen() == 0 {
+	if contents == nil || contents.Len() == 0 {
 		return nil, fmt.Errorf("log file contains no contents")
 	} else if config == nil || (config.Name == "" && config.Rules == nil) {
 		return nil, fmt.Errorf("configuration file has no contents")
@@ -66,7 +67,7 @@ func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*li
 	for i := 0; i < len(config.Rules); i++ {
 		currentRuleData, err := utils.ResolveRule(contents, &config.Rules[i])
 		if err != nil {
-			return nil, wrap_error(err)
+			return nil, wrapError(err)
 		}
 
 		ret_library.AddRuleData(config.Rules[i].Name, currentRuleData)
@@ -78,26 +79,26 @@ func resolveLogFile(contents *models.LogFile, config *config.Configuration) (*li
 }
 
 func printSummary(library *library.Library) error {
-	wrap_error := func(err error) error {
+	wrapError := func(err error) error {
 		return fmt.Errorf("unable to print summary: \n\t%w", err)
 	}
 
-	libraryName, err := library.GetName()
+	libraryName, err := library.Name()
 	if err != nil {
-		return wrap_error(err)
+		return wrapError(err)
 	}
 
 	fmt.Printf("\n--------------- %s Log File Summary ---------------\n", libraryName)
-	libraryKeys := library.GetLibraryKeys()
+	libraryKeys := library.LibraryKeys()
 	for _, rule := range libraryKeys {
 		fmt.Printf("Rule: %s\n", rule)
-		ruleData, _ := library.GetRuleData(rule)
-		summaryDataLen := ruleData.GetSummaryDataLen()
+		ruleData, _ := library.RuleData(rule)
+		summaryDataLen := ruleData.SummaryDataLen()
 		if summaryDataLen == 0 {
 			fmt.Println("No summary lines provided.")
 		} else {
 			for i := 0; i < summaryDataLen; i++ {
-				fmt.Println("\t", ruleData.GetSummaryData(i))
+				fmt.Println("\t", ruleData.SummaryData(i))
 			}
 		}
 		fmt.Println()
@@ -107,9 +108,11 @@ func printSummary(library *library.Library) error {
 }
 
 func main() {
+	logger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
+
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("\nAn issue occurred:", err)
+			logger.Fatal("\nAn issue occurred:", err)
 		}
 	}()
 
@@ -118,21 +121,21 @@ func main() {
 
 	parseFlags(&CONFIG_FILE, &LOG_FILE)
 
-	fmt.Println("Athena v1.0.0 Starting")
+	logger.Print("Athena v1.0.0 Starting")
 
 	fmt.Println("Getting Configuration File: ", CONFIG_FILE, "...")
-	configuration, err := utils.CreateConfiguration(CONFIG_FILE)
-	err_check(err)
+	configuration, err := config.CreateConfiguration(CONFIG_FILE)
+	errCheck(err)
 	fmt.Println("Configuration Loaded")
 
 	fmt.Println("Loading Log File: ", LOG_FILE, "... ")
-	logFileContents, err := utils.LoadLogFile(LOG_FILE)
-	err_check(err)
+	logFileContents, err := logs.LoadLogFile(LOG_FILE)
+	errCheck(err)
 	fmt.Println("Log File Loaded")
 
 	library, err := resolveLogFile(logFileContents, configuration)
-	err_check(err)
+	errCheck(err)
 
 	err = printSummary(library)
-	err_check(err)
+	errCheck(err)
 }

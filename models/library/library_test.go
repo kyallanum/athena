@@ -7,7 +7,7 @@ import (
 
 func TestLibraryGetName(t *testing.T) {
 	current_library := Library.New(Library{}, "test_stuff")
-	library_name, err := current_library.GetName()
+	library_name, err := current_library.Name()
 	if err != nil {
 		t.Errorf("an error occurred when getting name for library")
 	}
@@ -19,7 +19,7 @@ func TestLibraryGetName(t *testing.T) {
 
 func TestLibraryGetNameNoName(t *testing.T) {
 	current_library := Library.New(Library{}, "")
-	_, err := current_library.GetName()
+	_, err := current_library.Name()
 
 	if err == nil {
 		t.Errorf("Error not returned when Library name is nil")
@@ -38,7 +38,7 @@ func TestGetLibraryKeys(t *testing.T) {
 	library.AddRuleData("ruleData1", &ruleData1)
 	library.AddRuleData("ruleData2", &ruleData2)
 
-	libraryKeys := library.GetLibraryKeys()
+	libraryKeys := library.LibraryKeys()
 
 	if len(libraryKeys) != 2 {
 		t.Errorf("Library did not return the correct number of keys")
@@ -52,7 +52,7 @@ func TestGetLibraryKeys(t *testing.T) {
 func TestGetLibraryKeysNoKeys(t *testing.T) {
 	library := Library.New(Library{}, "testing")
 
-	libraryKeys := library.GetLibraryKeys()
+	libraryKeys := library.LibraryKeys()
 
 	if libraryKeys != nil {
 		t.Errorf("Returned the incorrect value when there are no library keys")
@@ -65,7 +65,7 @@ func TestGetRuleData(t *testing.T) {
 	library := Library.New(Library{}, "testing")
 	library.AddRuleData("ruleData1", &ruleData1)
 
-	newRuleData, err := library.GetRuleData("ruleData1")
+	newRuleData, err := library.RuleData("ruleData1")
 	if err != nil {
 		t.Errorf("Library did not return any rule data when it should have")
 	}
@@ -78,7 +78,7 @@ func TestGetRuleData(t *testing.T) {
 func TestGetRuleDataNoKeys(t *testing.T) {
 	library := Library.New(Library{}, "testing")
 
-	_, err := library.GetRuleData("testingData")
+	_, err := library.RuleData("testingData")
 
 	if err.Error() != "could not find key: testingData in library" {
 		t.Errorf("Error improperly returned when testing getRuleData without a proper key")

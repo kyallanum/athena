@@ -7,7 +7,7 @@ import (
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
 )
 
-func GetOperation(operation string, key string) (library.ISummaryOperation, error) {
+func Operation(operation string, key string) (library.ISummaryOperation, error) {
 	switch strings.ToLower(strings.TrimSpace(operation)) {
 	case "count":
 		return library.Count.New(library.Count{}, key), nil

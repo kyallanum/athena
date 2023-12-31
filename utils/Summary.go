@@ -10,7 +10,7 @@ import (
 )
 
 func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) ([]string, error) {
-	wrap_error := func(err error) error {
+	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve summary line: \n\t%w", err)
 	}
 
@@ -23,14 +23,14 @@ func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) ([]strin
 	expanded := false
 
 	for _, key := range keys {
-		operation, err := GetOperation(key[1], key[2])
+		operation, err := Operation(key[1], key[2])
 		if err != nil {
-			return nil, wrap_error(err)
+			return nil, wrapError(err)
 		}
 
 		calculated, err := operation.CalculateOperation(*ruleData)
 		if err != nil {
-			return nil, wrap_error(err)
+			return nil, wrapError(err)
 		}
 
 		for i := 0; i < len(calculated); i++ {
