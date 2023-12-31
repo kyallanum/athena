@@ -17,6 +17,6 @@ func main() {
 	}()
 
 	if err := cmd.Execute(logger); err != nil {
-	  panic(err)	
+		panic(err)
 	}
 }

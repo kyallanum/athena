@@ -37,26 +37,26 @@ func Execute(logger *log.Logger) error {
 
 	fmt.Println("Getting Configuration File: ", configFile, "...")
 	configuration, err := config.CreateConfiguration(configFile)
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 	fmt.Println("Configuration Loaded")
 
 	fmt.Println("Loading Log File: ", logFile, "... ")
 	logFileContents, err := logs.LoadLogFile(logFile)
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 	fmt.Println("Log File Loaded")
 
 	library, err := resolveLogFile(logFileContents, configuration)
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 
 	if err = printSummary(library); err != nil {
-    return nil
-  }
+		return nil
+	}
 	return nil
 }
 
