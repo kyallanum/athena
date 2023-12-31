@@ -1,4 +1,4 @@
-module github.com/kyallanum/athena/v1.0.0
+module github.com/kyallanum/athena
 
 go 1.21
 

@@ -30,7 +30,7 @@ func (print *Print) CalculateOperation(ruleData RuleData) ([]string, error) {
 	return ret_value, nil
 }
 
-func (Print) New(key string) ISummaryOperation {
+func NewPrintOperation(key string) ISummaryOperation {
 	return &Print{
 		SummaryOperation: SummaryOperation{
 			operation: "print",

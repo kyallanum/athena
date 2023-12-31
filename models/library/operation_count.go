@@ -36,7 +36,7 @@ func (count *Count) CalculateOperation(ruleData RuleData) ([]string, error) {
 	return ret_value, nil
 }
 
-func (Count) New(key string) ISummaryOperation {
+func NewCountOperation(key string) ISummaryOperation {
 	return &Count{
 		SummaryOperation: SummaryOperation{
 			operation: "count",

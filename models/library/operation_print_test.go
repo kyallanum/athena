@@ -6,7 +6,7 @@ import (
 )
 
 func TestCreateNewPrint(t *testing.T) {
-	testPrint := Print.New(Print{}, "testing")
+	testPrint := NewPrintOperation("testing")
 
 	if testPrint.Operation() != "print" {
 		t.Errorf("Returned object does not have the right operation")
@@ -18,17 +18,17 @@ func TestCreateNewPrint(t *testing.T) {
 }
 
 func TestPrintCalculateOperation(t *testing.T) {
-	st_data1 := SearchTermData.New(SearchTermData{})
+	st_data1 := NewSearchTermData()
 	st_data1.AddValue("testing", "test 1")
 
-	st_data2 := SearchTermData.New(SearchTermData{})
+	st_data2 := NewSearchTermData()
 	st_data2.AddValue("testing", "test 2")
 
-	testRuleData := RuleData.New(RuleData{})
+	testRuleData := NewRuleData()
 	testRuleData.AppendSearchTermData(st_data1)
 	testRuleData.AppendSearchTermData(st_data2)
 
-	testOperation := Print.New(Print{}, "testing")
+	testOperation := NewPrintOperation("testing")
 	printOutput, err := testOperation.CalculateOperation(testRuleData)
 	if err != nil {
 		t.Errorf("An error occurred when attempting to resolve lines to print: \n\t%s", err.Error())
@@ -44,8 +44,8 @@ func TestPrintCalculateOperation(t *testing.T) {
 }
 
 func TestPrintCalculateOperationEmptyRuleData(t *testing.T) {
-	testRuleData := RuleData.New(RuleData{})
-	testPrintOperation := Print.New(Print{}, "testing")
+	testRuleData := NewRuleData()
+	testPrintOperation := NewPrintOperation("testing")
 
 	_, err := testPrintOperation.CalculateOperation(testRuleData)
 	if err.Error() != "rule does not have any search term data stored" {
@@ -54,13 +54,13 @@ func TestPrintCalculateOperationEmptyRuleData(t *testing.T) {
 }
 
 func TestPrintCalculateOperationSearchTermNotExist(t *testing.T) {
-	st_data1 := SearchTermData.New(SearchTermData{})
+	st_data1 := NewSearchTermData()
 	st_data1.AddValue("bad_test", "test 1")
 
-	testRuleData := RuleData.New(RuleData{})
+	testRuleData := NewRuleData()
 	testRuleData.AppendSearchTermData(st_data1)
 
-	testPrintOperation := Print.New(Print{}, "testing")
+	testPrintOperation := NewPrintOperation("testing")
 	_, err := testPrintOperation.CalculateOperation(testRuleData)
 
 	if err.Error() != "this value was never extracted during search phase" {

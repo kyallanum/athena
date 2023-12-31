@@ -24,7 +24,7 @@ func (logfile *LogFile) LineAtIndex(index int) (string, error) {
 	return logfile.contents[index], nil
 }
 
-func (LogFile) New(contents []string) *LogFile {
+func New(contents []string) *LogFile {
 	return &LogFile{
 		contents: contents,
 		length:   len(contents),
@@ -53,6 +53,6 @@ func LoadLogFile(fileName string) (*LogFile, error) {
 		return nil, wrapError(err)
 	}
 
-	logFileContents := LogFile.New(LogFile{}, lines)
+	logFileContents := New(lines)
 	return logFileContents, nil
 }

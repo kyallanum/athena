@@ -15,7 +15,7 @@ func TestGetSourceFile(t *testing.T) {
 		t.Errorf("Error returned from getSource when it shouldn't have: \n\t%s", err.Error())
 	}
 
-	if reflect.TypeOf(configSource).String() != "*models.ConfigFileSource" {
+	if reflect.TypeOf(configSource).String() != "*models.FileSource" {
 		t.Errorf("Correct data type not returned from GetSource")
 	}
 }
@@ -42,7 +42,7 @@ func TestGetSourceWeb(t *testing.T) {
 		t.Errorf("Error returned from getSource when it shouldn't have: \n\t%s", err.Error())
 	}
 
-	if reflect.TypeOf(configWeb).String() != "*models.ConfigWebSource" {
+	if reflect.TypeOf(configWeb).String() != "*models.WebSource" {
 		t.Errorf("Correct data type not returned from GetSource: \n\t%s", reflect.TypeOf(configWeb).String())
 	}
 }

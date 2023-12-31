@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	library "github.com/kyallanum/athena/v1.0.0/models/library"
+	library "github.com/kyallanum/athena/models/library"
 )
 
 func summaryKeys(summaryLine string) [][]string {

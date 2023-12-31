@@ -3,8 +3,8 @@ package models
 import (
 	"fmt"
 
-	library "github.com/kyallanum/athena/v1.0.0/models/library"
-	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
+	library "github.com/kyallanum/athena/models/library"
+	logs "github.com/kyallanum/athena/models/logs"
 )
 
 func ResolveRule(contents *logs.LogFile, rule *Rule) (*library.RuleData, error) {
@@ -15,7 +15,7 @@ func ResolveRule(contents *logs.LogFile, rule *Rule) (*library.RuleData, error) 
 	allEntriesFound := false
 	linesResolved := []int{}
 
-	currentRuleData := library.RuleData.New(library.RuleData{})
+	currentRuleData := library.NewRuleData()
 
 	for !allEntriesFound {
 		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved)

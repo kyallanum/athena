@@ -6,7 +6,7 @@ import (
 )
 
 func TestLibraryGetName(t *testing.T) {
-	current_library := Library.New(Library{}, "test_stuff")
+	current_library := New("test_stuff")
 	library_name, err := current_library.Name()
 	if err != nil {
 		t.Errorf("an error occurred when getting name for library")
@@ -18,7 +18,7 @@ func TestLibraryGetName(t *testing.T) {
 }
 
 func TestLibraryGetNameNoName(t *testing.T) {
-	current_library := Library.New(Library{}, "")
+	current_library := New("")
 	_, err := current_library.Name()
 
 	if err == nil {
@@ -31,10 +31,10 @@ func TestLibraryGetNameNoName(t *testing.T) {
 }
 
 func TestGetLibraryKeys(t *testing.T) {
-	ruleData1 := RuleData.New(RuleData{})
-	ruleData2 := RuleData.New(RuleData{})
+	ruleData1 := NewRuleData()
+	ruleData2 := NewRuleData()
 
-	library := Library.New(Library{}, "test_library")
+	library := New("test_library")
 	library.AddRuleData("ruleData1", &ruleData1)
 	library.AddRuleData("ruleData2", &ruleData2)
 
@@ -50,7 +50,7 @@ func TestGetLibraryKeys(t *testing.T) {
 }
 
 func TestGetLibraryKeysNoKeys(t *testing.T) {
-	library := Library.New(Library{}, "testing")
+	library := New("testing")
 
 	libraryKeys := library.LibraryKeys()
 
@@ -60,9 +60,9 @@ func TestGetLibraryKeysNoKeys(t *testing.T) {
 }
 
 func TestGetRuleData(t *testing.T) {
-	ruleData1 := RuleData.New(RuleData{})
+	ruleData1 := NewRuleData()
 
-	library := Library.New(Library{}, "testing")
+	library := New("testing")
 	library.AddRuleData("ruleData1", &ruleData1)
 
 	newRuleData, err := library.RuleData("ruleData1")
@@ -76,7 +76,7 @@ func TestGetRuleData(t *testing.T) {
 }
 
 func TestGetRuleDataNoKeys(t *testing.T) {
-	library := Library.New(Library{}, "testing")
+	library := New("testing")
 
 	_, err := library.RuleData("testingData")
 
@@ -86,9 +86,9 @@ func TestGetRuleDataNoKeys(t *testing.T) {
 }
 
 func TestAddRuleData(t *testing.T) {
-	ruleData1 := RuleData.New(RuleData{})
+	ruleData1 := NewRuleData()
 
-	library := Library.New(Library{}, "testing")
+	library := New("testing")
 	err := library.AddRuleData("ruleData1", &ruleData1)
 
 	if err != nil {
@@ -97,10 +97,10 @@ func TestAddRuleData(t *testing.T) {
 }
 
 func TestAddRuleDataOverwrite(t *testing.T) {
-	ruleData1 := RuleData.New(RuleData{})
-	ruleData2 := RuleData.New(RuleData{})
+	ruleData1 := NewRuleData()
+	ruleData2 := NewRuleData()
 
-	library := Library.New(Library{}, "testing")
+	library := New("testing")
 	library.AddRuleData("ruleData1", &ruleData1)
 	err := library.AddRuleData("ruleData1", &ruleData2)
 
