@@ -11,7 +11,7 @@ func TestNewFileConfig(t *testing.T) {
 
 	fileSource := ConfigFileSource.New(ConfigFileSource{}, source)
 
-	if fileSource.GetSourceType() != "file" {
+	if fileSource.SourceType() != "file" {
 		t.Errorf("Configuration source type not set properly")
 	}
 
@@ -24,7 +24,7 @@ func TestLoadFileConfig(t *testing.T) {
 	source := "../../examples/apt-term-config.json"
 	fileSource := ConfigFileSource.New(ConfigFileSource{}, source)
 
-	fileConfig, err := fileSource.LoadConfig()
+	fileConfig, err := fileSource.Config()
 	if err != nil {
 		t.Errorf("Configuration Load created an error:\n\t%v", err)
 	}

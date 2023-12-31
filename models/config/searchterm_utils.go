@@ -1,15 +1,14 @@
-package utils
+package models
 
 import (
 	"fmt"
 	"slices"
 
-	config "github.com/kyallanum/athena/v1.0.0/models/config"
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
 	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
 )
 
-func resolveSearchTerms(logFile *logs.LogFile, rule *config.Rule, linesResolved *[]int) (*library.SearchTermData, error) {
+func resolveSearchTerms(logFile *logs.LogFile, rule *Rule, linesResolved *[]int) (*library.SearchTermData, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve search terms for rule %s: \n\t%w", rule.Name, err)
 	}

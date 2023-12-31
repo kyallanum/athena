@@ -1,4 +1,4 @@
-package utils
+package models
 
 import (
 	"fmt"
@@ -9,43 +9,7 @@ import (
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
 )
 
-func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) ([]string, error) {
-	wrapError := func(err error) error {
-		return fmt.Errorf("unable to resolve summary line: \n\t%w", err)
-	}
-
-	keys := getSummaryKeys(summaryLine)
-	if !isOneUniqueOperation(keys) {
-		return nil, fmt.Errorf("could not resolve summary. mixing operations is currently not implemented")
-	}
-
-	ret_summary_line := make([]string, 0)
-	expanded := false
-
-	for _, key := range keys {
-		operation, err := Operation(key[1], key[2])
-		if err != nil {
-			return nil, wrapError(err)
-		}
-
-		calculated, err := operation.CalculateOperation(*ruleData)
-		if err != nil {
-			return nil, wrapError(err)
-		}
-
-		for i := 0; i < len(calculated); i++ {
-			// expand the first time
-			if !expanded {
-				ret_summary_line = append(ret_summary_line, summaryLine)
-			}
-			ret_summary_line[i] = strings.Replace(ret_summary_line[i], key[0], calculated[i], 1)
-		}
-		expanded = true
-	}
-	return ret_summary_line, nil
-}
-
-func getSummaryKeys(summaryLine string) [][]string {
+func summaryKeys(summaryLine string) [][]string {
 	defer func() {
 		if err := recover(); err != nil {
 			panic(fmt.Errorf("could not get summary keys. this is most likely an internal error: \n\t%s", err.(string)))
@@ -66,6 +30,42 @@ func getSummaryKeys(summaryLine string) [][]string {
 	}
 
 	return ret_keys
+}
+
+func resolveSummaryLine(summaryLine string, ruleData *library.RuleData) ([]string, error) {
+	wrapError := func(err error) error {
+		return fmt.Errorf("unable to resolve summary line: \n\t%w", err)
+	}
+
+	keys := summaryKeys(summaryLine)
+	if !isOneUniqueOperation(keys) {
+		return nil, fmt.Errorf("could not resolve summary. mixing operations is currently not implemented")
+	}
+
+	ret_summary_line := make([]string, 0)
+	expanded := false
+
+	for _, key := range keys {
+		operation, err := library.Operation(key[1], key[2])
+		if err != nil {
+			return nil, wrapError(err)
+		}
+
+		calculated, err := operation.CalculateOperation(*ruleData)
+		if err != nil {
+			return nil, wrapError(err)
+		}
+
+		for i := 0; i < len(calculated); i++ {
+			// expand the first time
+			if !expanded {
+				ret_summary_line = append(ret_summary_line, summaryLine)
+			}
+			ret_summary_line[i] = strings.Replace(ret_summary_line[i], key[0], calculated[i], 1)
+		}
+		expanded = true
+	}
+	return ret_summary_line, nil
 }
 
 func isOneUniqueOperation(keys [][]string) bool {

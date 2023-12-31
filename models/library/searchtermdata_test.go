@@ -18,7 +18,7 @@ func TestSearchTermDataGetKeys(t *testing.T) {
 	st_data.AddValue("test1", "testing")
 	st_data.AddValue("test2", "testing")
 
-	keys_returned := st_data.GetKeys()
+	keys_returned := st_data.Keys()
 
 	if len(keys_returned) != 2 {
 		t.Errorf("Get Keys returned the wrong number of keys")
@@ -32,7 +32,7 @@ func TestSearchTermDataGetKeys(t *testing.T) {
 func TestSearchTermDataGetKeysNoKeys(t *testing.T) {
 	st_data := SearchTermData.New(SearchTermData{})
 
-	keys_returned := st_data.GetKeys()
+	keys_returned := st_data.Keys()
 
 	if keys_returned != nil {
 		t.Errorf("Get Keys returned the wrong answer with no keys")
@@ -43,7 +43,7 @@ func TestGetValue(t *testing.T) {
 	st_data := SearchTermData.New(SearchTermData{})
 	st_data.AddValue("test1", "testing")
 
-	currentValue, err := st_data.GetValue("test1")
+	currentValue, err := st_data.Value("test1")
 	if err != nil {
 		t.Errorf("Error improperly returned when getting value.")
 	}
@@ -60,7 +60,7 @@ func TestGetValue(t *testing.T) {
 func TestGetValueWrongValue(t *testing.T) {
 	st_data := SearchTermData.New(SearchTermData{})
 
-	_, err := st_data.GetValue("test1")
+	_, err := st_data.Value("test1")
 
 	if err == nil {
 		t.Errorf("Error not returned when it should have.")

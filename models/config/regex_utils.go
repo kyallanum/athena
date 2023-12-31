@@ -1,4 +1,4 @@
-package utils
+package models
 
 import (
 	"fmt"
@@ -32,8 +32,6 @@ func resolveLine(line string, regex string) *map[string]string {
 	return nil
 }
 
-// func translateSearchTermReference finds all references of {{key}} and replaces it with a key
-// in the current search term data.
 func translateSearchTermReference(regex string, currentSearchTermData *library.SearchTermData) (string, error) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -60,20 +58,17 @@ func translateSearchTermReference(regex string, currentSearchTermData *library.S
 		if err != nil {
 			return "", fmt.Errorf("an error occurred when translating a search term reference. \n\tthe following key was not registered in a previous search term: %s", keysToLookup[i])
 		}
-		stringToReplace = validateStringToReplace(stringToReplace)
+		stringToReplace = escapeSpecialCharacters(stringToReplace)
 		foundString := re.FindString(regex)
 		if foundString != "" {
 			regex = strings.Replace(regex, foundString, stringToReplace, 1)
 		}
 	}
 
-	// fmt.Println(regex)
 	return regex, nil
 }
 
-// func validateStringToReplace takes any string that will get replaced
-// by strings.Replace and and escapes any special characters with a "\"
-func validateStringToReplace(regex string) string {
+func escapeSpecialCharacters(regex string) string {
 	defer func() {
 		if err := recover(); err != nil {
 			panic(fmt.Errorf("a string could not be escaped. this is most likely an internal error: \n\t%s", err.(string)))
@@ -84,4 +79,24 @@ func validateStringToReplace(regex string) string {
 
 	regex = re.ReplaceAllString(regex, `\${1}`)
 	return regex
+}
+
+func translateConfigurationNamedGroups(regex *string) error {
+	if *regex == "" {
+		return fmt.Errorf("empty search terms are not allowed")
+	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			panic(fmt.Errorf("unable to translate regex: \"%s\" for Go standards, this is most likely an internal error: \n\t%s", *regex, err.(string)))
+		}
+	}()
+
+	// Matches the pattern (?<group_name>)
+	regexAddGolangGroupName := `(\(\?)(\<[\w\W]+?\>)`
+	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
+
+	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
+
+	return nil
 }

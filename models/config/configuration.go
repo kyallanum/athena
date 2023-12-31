@@ -1,8 +1,8 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
-	"regexp"
 )
 
 // A Configuration struct represents the top level of a JSON configuration file.
@@ -38,7 +38,7 @@ type Rule struct {
 func (config *Configuration) TranslateConfiguration() error {
 	for ruleIndex, currentRule := range config.Rules {
 		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {
-			err := translateRegex(&currentSearchTerm)
+			err := translateConfigurationNamedGroups(&currentSearchTerm)
 			if err != nil {
 				return err
 			}
@@ -48,21 +48,31 @@ func (config *Configuration) TranslateConfiguration() error {
 	return nil
 }
 
-func translateRegex(regex *string) error {
-	if *regex == "" {
-		return fmt.Errorf("empty search terms are not allowed")
+func CreateConfiguration(source string) (config *Configuration, err error) {
+	wrapError := func(err error) error {
+		return fmt.Errorf("unable to create configuration object: \n\t%w", err)
 	}
 
-	defer func() {
-		if err := recover(); err != nil {
-			panic(fmt.Errorf("unable to translate regex: \"%s\" for Go standards, this is most likely an internal error: \n\t%s", *regex, err.(string)))
-		}
-	}()
+	configSource, err := Source(source)
+	if err != nil {
+		return nil, wrapError(err)
+	}
 
-	regexAddGolangGroupName := `(\(\?)(\<[\w\W]+?\>)`
-	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
+	configFile, err := configSource.Config()
+	if err != nil {
+		return nil, wrapError(err)
+	}
 
-	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
+	configObject := &Configuration{}
+	err = json.Unmarshal(configFile, configObject)
+	if err != nil {
+		return nil, wrapError(err)
+	}
 
-	return nil
+	err = configObject.TranslateConfiguration()
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	return configObject, nil
 }

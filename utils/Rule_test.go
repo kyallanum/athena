@@ -6,15 +6,16 @@ import (
 	"testing"
 
 	config "github.com/kyallanum/athena/v1.0.0/models/config"
+	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
 )
 
 func TestResolveRule(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
-	logFile, _ := LoadLogFile("../examples/apt-term.log")
+	logFile, _ := logs.LoadLogFile("../examples/apt-term.log")
 
-	currentConfig, _ := CreateConfiguration("../examples/apt-term-config.json")
+	currentConfig, _ := config.CreateConfiguration("../examples/apt-term-config.json")
 
 	currentRule := currentConfig.Rules[0]
 
@@ -39,7 +40,7 @@ func TestResolveRuleBadRule(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
-	logFile, _ := LoadLogFile("../examples/apt-term.log")
+	logFile, _ := logs.LoadLogFile("../examples/apt-term.log")
 
 	currentRule := &config.Rule{}
 

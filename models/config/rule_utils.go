@@ -1,14 +1,13 @@
-package utils
+package models
 
 import (
 	"fmt"
 
-	config "github.com/kyallanum/athena/v1.0.0/models/config"
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
 	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
 )
 
-func ResolveRule(contents *logs.LogFile, rule *config.Rule) (*library.RuleData, error) {
+func ResolveRule(contents *logs.LogFile, rule *Rule) (*library.RuleData, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve rule %s: \n\t%w", rule.Name, err)
 	}

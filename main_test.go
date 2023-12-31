@@ -4,15 +4,15 @@ import (
 	"os"
 	"testing"
 
-	models "github.com/kyallanum/athena/v1.0.0/models/config"
-	"github.com/kyallanum/athena/v1.0.0/utils"
+	config "github.com/kyallanum/athena/v1.0.0/models/config"
+	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
 )
 
 func TestResolveFile(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
-	configuration, _ := utils.CreateConfiguration("./examples/apt-term-config.json")
+	logFile, _ := logs.LoadLogFile("./examples/apt-term.log")
+	configuration, _ := config.CreateConfiguration("./examples/apt-term-config.json")
 
 	_, err := resolveLogFile(logFile, configuration)
 
@@ -25,8 +25,8 @@ func TestResolveLogFileBadLog(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
-	logFile, _ := utils.LoadLogFile("./examples/apt-term-bad.log")
-	configuration, _ := utils.CreateConfiguration("./examples/apt-term-config.json")
+	logFile, _ := logs.LoadLogFile("./examples/apt-term-bad.log")
+	configuration, _ := config.CreateConfiguration("./examples/apt-term-config.json")
 
 	_, err := resolveLogFile(logFile, configuration)
 
@@ -39,8 +39,8 @@ func TestResolveLogFileBadConfig(t *testing.T) {
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
-	configuration, _ := utils.CreateConfiguration("./examples/apt-term-config-bad.json")
+	logFile, _ := logs.LoadLogFile("./examples/apt-term.log")
+	configuration, _ := config.CreateConfiguration("./examples/apt-term-config-bad.json")
 
 	_, err := resolveLogFile(logFile, configuration)
 
@@ -50,9 +50,9 @@ func TestResolveLogFileBadConfig(t *testing.T) {
 }
 
 func TestResolveLogFileNoConfigName(t *testing.T) {
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
-	configuration := &models.Configuration{
-		Rules: make([]models.Rule, 1),
+	logFile, _ := logs.LoadLogFile("./examples/apt-term.log")
+	configuration := &config.Configuration{
+		Rules: make([]config.Rule, 1),
 	}
 
 	_, err := resolveLogFile(logFile, configuration)
@@ -63,8 +63,8 @@ func TestResolveLogFileNoConfigName(t *testing.T) {
 }
 
 func TestResolveLogFileNoConfigRules(t *testing.T) {
-	logFile, _ := utils.LoadLogFile("./examples/apt-term.log")
-	configuration := &models.Configuration{
+	logFile, _ := logs.LoadLogFile("./examples/apt-term.log")
+	configuration := &config.Configuration{
 		Name: "test",
 	}
 

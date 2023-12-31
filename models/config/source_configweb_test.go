@@ -11,7 +11,7 @@ import (
 
 func TestNewWebSource(t *testing.T) {
 	configSource := ConfigFileSource.New(ConfigFileSource{}, "../../examples/apt-term-config.json")
-	configFileString, _ := configSource.LoadConfig()
+	configFileString, _ := configSource.Config()
 
 	testTable := []struct {
 		name   string
@@ -28,7 +28,7 @@ func TestNewWebSource(t *testing.T) {
 
 	for _, testServer := range testTable {
 		testWebSource := ConfigWebSource.New(ConfigWebSource{}, testServer.server.URL)
-		if testWebSource.GetSourceType() != "web" {
+		if testWebSource.SourceType() != "web" {
 			t.Errorf("Config source type not set properly.")
 		}
 
@@ -41,7 +41,7 @@ func TestNewWebSource(t *testing.T) {
 
 func TestLoadWebConfig(t *testing.T) {
 	configSource := ConfigFileSource.New(ConfigFileSource{}, "../../examples/apt-term-config.json")
-	configFileString, _ := configSource.LoadConfig()
+	configFileString, _ := configSource.Config()
 
 	testTable := []struct {
 		name           string
@@ -72,7 +72,7 @@ func TestLoadWebConfig(t *testing.T) {
 		t.Run(testServer.name, func(t *testing.T) {
 			defer testServer.server.Close()
 			testWebSource := ConfigWebSource.New(ConfigWebSource{}, testServer.server.URL)
-			configFileString, err := testWebSource.LoadConfig()
+			configFileString, err := testWebSource.Config()
 
 			if reflect.TypeOf(configFileString).String() != reflect.TypeOf(testServer.expectedOutput).String() {
 				t.Errorf("LoadConfig does not return the correct type.")

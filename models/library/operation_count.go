@@ -10,7 +10,7 @@ type Count struct {
 }
 
 func (count *Count) CalculateOperation(ruleData RuleData) ([]string, error) {
-	searchTermLen := ruleData.GetSearchTermDataLen()
+	searchTermLen := ruleData.SearchTermDataLen()
 
 	if searchTermLen == 0 {
 		return nil, fmt.Errorf("rule does not have any search term data stored")
@@ -19,8 +19,8 @@ func (count *Count) CalculateOperation(ruleData RuleData) ([]string, error) {
 	searchTermCount := 0
 
 	for index := 0; index < searchTermLen; index++ {
-		currentSearchTermData := ruleData.GetSearchTermData(index)
-		_, err := currentSearchTermData.GetValue(count.key)
+		currentSearchTermData := ruleData.SearchTermData(index)
+		_, err := currentSearchTermData.Value(count.key)
 		if err != nil {
 			continue
 		}

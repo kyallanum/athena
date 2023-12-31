@@ -8,7 +8,7 @@ import (
 func TestCreateNewPrint(t *testing.T) {
 	testPrint := Print.New(Print{}, "testing")
 
-	if testPrint.GetOperation() != "print" {
+	if testPrint.Operation() != "print" {
 		t.Errorf("Returned object does not have the right operation")
 	}
 

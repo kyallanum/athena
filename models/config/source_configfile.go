@@ -11,8 +11,8 @@ type ConfigFileSource struct {
 	ConfigurationSource
 }
 
-func (config *ConfigFileSource) LoadConfig() ([]byte, error) {
-	wrap_error := func(err error) error {
+func (config *ConfigFileSource) Config() ([]byte, error) {
+	wrapError := func(err error) error {
 		return fmt.Errorf("unable to load configuration from file: \n\t%w", err)
 	}
 
@@ -21,14 +21,14 @@ func (config *ConfigFileSource) LoadConfig() ([]byte, error) {
 	if !filepath.IsAbs(config.source) {
 		currentSource, err := filepath.Abs(config.source)
 		if err != nil {
-			return nil, wrap_error(err)
+			return nil, wrapError(err)
 		}
 		source = currentSource
 	}
 
 	file, err := os.Open(source)
 	if err != nil {
-		return nil, wrap_error(err)
+		return nil, wrapError(err)
 	}
 
 	defer file.Close()
@@ -42,7 +42,7 @@ func (config *ConfigFileSource) LoadConfig() ([]byte, error) {
 
 	err = scanner.Err()
 	if err != nil {
-		return nil, wrap_error(err)
+		return nil, wrapError(err)
 	}
 
 	return bytes, nil

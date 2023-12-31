@@ -8,7 +8,7 @@ import (
 func TestCreateNewCount(t *testing.T) {
 	testCountOperation := Count.New(Count{}, "test")
 
-	if testCountOperation.GetOperation() != "count" {
+	if testCountOperation.Operation() != "count" {
 		t.Errorf("Operation type is not correct for count.")
 	}
 
