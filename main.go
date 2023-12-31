@@ -9,7 +9,6 @@ import (
 	config "github.com/kyallanum/athena/v1.0.0/models/config"
 	library "github.com/kyallanum/athena/v1.0.0/models/library"
 	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
-	"github.com/kyallanum/athena/v1.0.0/utils"
 )
 
 func errCheck(err error) {
@@ -46,31 +45,31 @@ func parseFlags(configFile *string, logFile *string) error {
 	return nil
 }
 
-func resolveLogFile(contents *logs.LogFile, config *config.Configuration) (*library.Library, error) {
+func resolveLogFile(contents *logs.LogFile, configuration *config.Configuration) (*library.Library, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve log file: \n\t%w", err)
 	}
 
 	if contents == nil || contents.Len() == 0 {
 		return nil, fmt.Errorf("log file contains no contents")
-	} else if config == nil || (config.Name == "" && config.Rules == nil) {
+	} else if configuration == nil || (configuration.Name == "" && configuration.Rules == nil) {
 		return nil, fmt.Errorf("configuration file has no contents")
-	} else if config.Name == "" {
+	} else if configuration.Name == "" {
 		return nil, fmt.Errorf("configuration file contains no log name")
-	} else if config.Rules == nil || len(config.Rules) == 0 {
+	} else if configuration.Rules == nil || len(configuration.Rules) == 0 {
 		return nil, fmt.Errorf("configuration does not have any rules")
 	}
 
-	ret_library := library.Library.New(library.Library{}, config.Name)
+	ret_library := library.Library.New(library.Library{}, configuration.Name)
 
 	fmt.Println("Resolving Log File")
-	for i := 0; i < len(config.Rules); i++ {
-		currentRuleData, err := utils.ResolveRule(contents, &config.Rules[i])
+	for i := 0; i < len(configuration.Rules); i++ {
+		currentRuleData, err := config.ResolveRule(contents, &configuration.Rules[i])
 		if err != nil {
 			return nil, wrapError(err)
 		}
 
-		ret_library.AddRuleData(config.Rules[i].Name, currentRuleData)
+		ret_library.AddRuleData(configuration.Rules[i].Name, currentRuleData)
 	}
 
 	fmt.Println("Log File Resolved")

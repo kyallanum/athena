@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 )
 
 // A Configuration struct represents the top level of a JSON configuration file.
@@ -39,32 +38,13 @@ type Rule struct {
 func (config *Configuration) TranslateConfiguration() error {
 	for ruleIndex, currentRule := range config.Rules {
 		for searchTermIndex, currentSearchTerm := range currentRule.SearchTerms {
-			err := translateRegex(&currentSearchTerm)
+			err := translateConfigurationNamedGroups(&currentSearchTerm)
 			if err != nil {
 				return err
 			}
 			config.Rules[ruleIndex].SearchTerms[searchTermIndex] = currentSearchTerm
 		}
 	}
-	return nil
-}
-
-func translateRegex(regex *string) error {
-	if *regex == "" {
-		return fmt.Errorf("empty search terms are not allowed")
-	}
-
-	defer func() {
-		if err := recover(); err != nil {
-			panic(fmt.Errorf("unable to translate regex: \"%s\" for Go standards, this is most likely an internal error: \n\t%s", *regex, err.(string)))
-		}
-	}()
-
-	regexAddGolangGroupName := `(\(\?)(\<[\w\W]+?\>)`
-	compiledRegex := regexp.MustCompile(regexAddGolangGroupName)
-
-	*regex = compiledRegex.ReplaceAllString(*regex, "${1}P${2}")
-
 	return nil
 }
 
