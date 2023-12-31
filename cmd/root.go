@@ -59,8 +59,8 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&configFile, "config", "c", os.Getenv(""), "")
-	rootCmd.Flags().StringVarP(&logFile, "log-file", "l", os.Getenv(""), "")
+	rootCmd.Flags().StringVarP(&configFile, "config", "c", os.Getenv("ATHENA_CONFIG_FILE"), "")
+	rootCmd.Flags().StringVarP(&logFile, "log-file", "l", os.Getenv("ATHENA_LOG_FILE"), "")
 }
 
 func resolveLogFile(contents *logs.LogFile, configuration *config.Configuration) (*library.Library, error) {
