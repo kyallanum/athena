@@ -15,7 +15,7 @@ func TestNewFileConfig(t *testing.T) {
 		t.Errorf("Configuration source type not set properly")
 	}
 
-	if reflect.TypeOf(fileSource).String() != "*models.ConfigFileSource" {
+	if reflect.TypeOf(fileSource).String() != "*models.FileSource" {
 		t.Errorf("Configuration source not of the right type")
 	}
 }

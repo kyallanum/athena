@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	config "github.com/kyallanum/athena/v1.0.0/models/config"
-	library "github.com/kyallanum/athena/v1.0.0/models/library"
-	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
+	config "github.com/kyallanum/athena/models/config"
+	library "github.com/kyallanum/athena/models/library"
+	logs "github.com/kyallanum/athena/models/logs"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +36,7 @@ func Execute() error {
 	}
 
 	err := rootCmd.Execute()
-  errCheck(err)
+	errCheck(err)
 	fmt.Println("Athena v1.0.0 Starting")
 
 	fmt.Println("Getting Configuration File: ", configFile, "...")
@@ -78,7 +78,7 @@ func resolveLogFile(contents *logs.LogFile, configuration *config.Configuration)
 		return nil, fmt.Errorf("configuration does not have any rules")
 	}
 
-	ret_library := library.Library.New(library.Library{}, configuration.Name)
+	ret_library := library.New(configuration.Name)
 
 	fmt.Println("Resolving Log File")
 	for i := 0; i < len(configuration.Rules); i++ {

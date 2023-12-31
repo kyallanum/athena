@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/kyallanum/athena/cmd"
-	"github.com/kyallanum/athena/models/config"
-	"github.com/kyallanum/athena/models/library"
-	"github.com/kyallanum/athena/models/logs"
+	config "github.com/kyallanum/athena/models/config"
+	library "github.com/kyallanum/athena/models/library"
+	logs "github.com/kyallanum/athena/models/logs"
 )
 
 func errCheck(err error) {
