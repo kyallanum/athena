@@ -29,6 +29,12 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() error {
+	errCheck := func(err error) {
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		return err
 	}
@@ -36,26 +42,20 @@ func Execute() error {
 
 	fmt.Println("Getting Configuration File: ", configFile, "...")
 	configuration, err := config.CreateConfiguration(configFile)
-	if err != nil {
-		return err
-	}
+	errCheck(err)
 	fmt.Println("Configuration Loaded")
 
 	fmt.Println("Loading Log File: ", logFile, "... ")
 	logFileContents, err := logs.LoadLogFile(logFile)
-	if err != nil {
-		return err
-	}
+	errCheck(err)
 	fmt.Println("Log File Loaded")
 
 	library, err := resolveLogFile(logFileContents, configuration)
-	if err != nil {
-		return err
-	}
+	errCheck(err)
 
-	if err = printSummary(library); err != nil {
-		return nil
-	}
+	err = printSummary(library)
+	errCheck(err)
+
 	return nil
 }
 
