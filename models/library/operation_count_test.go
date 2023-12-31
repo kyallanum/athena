@@ -6,7 +6,7 @@ import (
 )
 
 func TestCreateNewCount(t *testing.T) {
-	testCountOperation := Count.New(Count{}, "test")
+	testCountOperation := NewCountOperation("test")
 
 	if testCountOperation.Operation() != "count" {
 		t.Errorf("Operation type is not correct for count.")
@@ -18,17 +18,17 @@ func TestCreateNewCount(t *testing.T) {
 }
 
 func TestCountCalculateOperation(t *testing.T) {
-	st_data1 := SearchTermData.New(SearchTermData{})
+	st_data1 := NewSearchTermData()
 	st_data1.AddValue("test", "testing 1")
 
-	st_data2 := SearchTermData.New(SearchTermData{})
+	st_data2 := NewSearchTermData()
 	st_data2.AddValue("test", "testing 2")
 
-	testRuleData := RuleData.New(RuleData{})
+	testRuleData := NewRuleData()
 	testRuleData.AppendSearchTermData(st_data1)
 	testRuleData.AppendSearchTermData(st_data2)
 
-	testCountOperation := Count.New(Count{}, "test")
+	testCountOperation := NewCountOperation("test")
 
 	numTests, err := testCountOperation.CalculateOperation(testRuleData)
 
@@ -46,8 +46,8 @@ func TestCountCalculateOperation(t *testing.T) {
 }
 
 func TestCountCalculateOperationEmptyRuleData(t *testing.T) {
-	testRuleData := RuleData.New(RuleData{})
-	testCountOperation := Count.New(Count{}, "test")
+	testRuleData := NewRuleData()
+	testCountOperation := NewCountOperation("test")
 	_, err := testCountOperation.CalculateOperation(testRuleData)
 
 	if err.Error() != "rule does not have any search term data stored" {
@@ -56,13 +56,13 @@ func TestCountCalculateOperationEmptyRuleData(t *testing.T) {
 }
 
 func TestCountCalculateOperationSearchTermNotExist(t *testing.T) {
-	st_data1 := SearchTermData.New(SearchTermData{})
+	st_data1 := NewSearchTermData()
 	st_data1.AddValue("bad_test", "testing")
 
-	testRuleData := RuleData.New(RuleData{})
+	testRuleData := NewRuleData()
 	testRuleData.AppendSearchTermData(st_data1)
 
-	testCountOperation := Count.New(Count{}, "test")
+	testCountOperation := NewCountOperation("test")
 	_, err := testCountOperation.CalculateOperation(testRuleData)
 	if err.Error() != "this value was never extracted during search phase" {
 		t.Errorf("Error not returned properly for search term data that was never created")

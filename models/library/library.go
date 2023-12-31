@@ -10,7 +10,7 @@ type Library struct {
 	name                 string
 }
 
-func (Library) New(name string) *Library {
+func New(name string) *Library {
 	return &Library{
 		rule_data_collection: make(map[string]RuleData),
 		name:                 name,

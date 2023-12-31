@@ -18,7 +18,7 @@ func TestGetLineAtIndex(t *testing.T) {
 		logFile = append(logFile, currentText)
 	}
 
-	logFileObject := LogFile.New(LogFile{}, logFile)
+	logFileObject := New(logFile)
 
 	line, err := logFileObject.LineAtIndex(0)
 	if err != nil {

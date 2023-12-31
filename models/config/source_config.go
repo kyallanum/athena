@@ -75,7 +75,7 @@ func Source(source string) (IConfigurationSource, error) {
 	}
 
 	if isUrl {
-		return ConfigWebSource.New(ConfigWebSource{}, source), nil
+		return NewWebSource(source), nil
 	}
 
 	isFile, err := verifyFilePath(source)
@@ -84,7 +84,7 @@ func Source(source string) (IConfigurationSource, error) {
 	}
 
 	if isFile {
-		return ConfigFileSource.New(ConfigFileSource{}, source), nil
+		return NewFileSource(source), nil
 	}
 
 	//Should never reach this

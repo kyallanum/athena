@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	logs "github.com/kyallanum/athena/v1.0.0/models/logs"
+	logs "github.com/kyallanum/athena/models/logs"
 )
 
 func TestTranslateRegex(t *testing.T) {

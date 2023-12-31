@@ -6,7 +6,7 @@ import (
 )
 
 func TestCreateNewSearchTermData(t *testing.T) {
-	st_data := SearchTermData.New(SearchTermData{})
+	st_data := NewSearchTermData()
 
 	if reflect.TypeOf(st_data).String() != "*models.SearchTermData" {
 		t.Errorf("Creating new SearchTermData returned the wrong type")
@@ -14,7 +14,7 @@ func TestCreateNewSearchTermData(t *testing.T) {
 }
 
 func TestSearchTermDataGetKeys(t *testing.T) {
-	st_data := SearchTermData.New(SearchTermData{})
+	st_data := NewSearchTermData()
 	st_data.AddValue("test1", "testing")
 	st_data.AddValue("test2", "testing")
 
@@ -30,7 +30,7 @@ func TestSearchTermDataGetKeys(t *testing.T) {
 }
 
 func TestSearchTermDataGetKeysNoKeys(t *testing.T) {
-	st_data := SearchTermData.New(SearchTermData{})
+	st_data := NewSearchTermData()
 
 	keys_returned := st_data.Keys()
 
@@ -40,7 +40,7 @@ func TestSearchTermDataGetKeysNoKeys(t *testing.T) {
 }
 
 func TestGetValue(t *testing.T) {
-	st_data := SearchTermData.New(SearchTermData{})
+	st_data := NewSearchTermData()
 	st_data.AddValue("test1", "testing")
 
 	currentValue, err := st_data.Value("test1")
@@ -58,7 +58,7 @@ func TestGetValue(t *testing.T) {
 }
 
 func TestGetValueWrongValue(t *testing.T) {
-	st_data := SearchTermData.New(SearchTermData{})
+	st_data := NewSearchTermData()
 
 	_, err := st_data.Value("test1")
 
@@ -72,7 +72,7 @@ func TestGetValueWrongValue(t *testing.T) {
 }
 
 func TestAddValue(t *testing.T) {
-	st_data := SearchTermData.New(SearchTermData{})
+	st_data := NewSearchTermData()
 
 	err := st_data.AddValue("test1", "testing")
 	if err != nil {

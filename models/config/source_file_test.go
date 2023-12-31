@@ -9,20 +9,20 @@ import (
 func TestNewFileConfig(t *testing.T) {
 	source := "./examples/apt-term-config.json"
 
-	fileSource := ConfigFileSource.New(ConfigFileSource{}, source)
+	fileSource := NewFileSource(source)
 
 	if fileSource.SourceType() != "file" {
 		t.Errorf("Configuration source type not set properly")
 	}
 
-	if reflect.TypeOf(fileSource).String() != "*models.ConfigFileSource" {
+	if reflect.TypeOf(fileSource).String() != "*models.FileSource" {
 		t.Errorf("Configuration source not of the right type")
 	}
 }
 
 func TestLoadFileConfig(t *testing.T) {
 	source := "../../examples/apt-term-config.json"
-	fileSource := ConfigFileSource.New(ConfigFileSource{}, source)
+	fileSource := NewFileSource(source)
 
 	fileConfig, err := fileSource.Config()
 	if err != nil {

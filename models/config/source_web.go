@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-type ConfigWebSource struct {
+type WebSource struct {
 	ConfigurationSource
 }
 
-func (config *ConfigWebSource) Config() ([]byte, error) {
+func (config *WebSource) Config() ([]byte, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to create configuration for web source: \n\t%w", err)
 	}
@@ -30,8 +30,8 @@ func (config *ConfigWebSource) Config() ([]byte, error) {
 	return data, nil
 }
 
-func (ConfigWebSource) New(source string) IConfigurationSource {
-	return &ConfigWebSource{
+func NewWebSource(source string) IConfigurationSource {
+	return &WebSource{
 		ConfigurationSource: ConfigurationSource{
 			source_type: "web",
 			source:      source,

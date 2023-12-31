@@ -10,7 +10,7 @@ type SearchTermData struct {
 	data map[string]string
 }
 
-func (SearchTermData) New() *SearchTermData {
+func NewSearchTermData() *SearchTermData {
 	return &SearchTermData{
 		data: make(map[string]string),
 	}

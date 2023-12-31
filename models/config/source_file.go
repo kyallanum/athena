@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 )
 
-type ConfigFileSource struct {
+type FileSource struct {
 	ConfigurationSource
 }
 
-func (config *ConfigFileSource) Config() ([]byte, error) {
+func (config *FileSource) Config() ([]byte, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to load configuration from file: \n\t%w", err)
 	}
@@ -48,8 +48,8 @@ func (config *ConfigFileSource) Config() ([]byte, error) {
 	return bytes, nil
 }
 
-func (ConfigFileSource) New(source string) IConfigurationSource {
-	return &ConfigFileSource{
+func NewFileSource(source string) IConfigurationSource {
+	return &FileSource{
 		ConfigurationSource: ConfigurationSource{
 			source_type: "file",
 			source:      source,

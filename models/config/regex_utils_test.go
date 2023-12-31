@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	library "github.com/kyallanum/athena/v1.0.0/models/library"
+	library "github.com/kyallanum/athena/models/library"
 )
 
 func TestResolveLine(t *testing.T) {
@@ -52,7 +52,7 @@ func TestTranslateSearchTermReference(t *testing.T) {
 	}()
 
 	regex := `Testing {{test}}`
-	st_data := library.SearchTermData.New(library.SearchTermData{})
+	st_data := library.NewSearchTermData()
 	st_data.AddValue("test", "Test1")
 
 	newRegex, err := translateSearchTermReference(regex, st_data)
@@ -73,7 +73,7 @@ func TestTranslateSearchTermReferenceBadReference(t *testing.T) {
 	}()
 
 	regex := `Testing {{test}}`
-	st_data := library.SearchTermData.New(library.SearchTermData{})
+	st_data := library.NewSearchTermData()
 	st_data.AddValue("bad_test", "testing")
 
 	_, err := translateSearchTermReference(regex, st_data)
