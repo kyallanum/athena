@@ -1,22 +1,20 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/kyallanum/athena/v1.0.0/cmd"
 )
 
 func main() {
-	logger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
-
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Fatalln("\nAn issue occurred: ", err)
+			fmt.Fprintln(os.Stderr, "\nAn error occured: ", err)
 		}
 	}()
 
-	if err := cmd.Execute(logger); err != nil {
+	if err := cmd.Execute(); err != nil {
 		panic(err)
 	}
 }

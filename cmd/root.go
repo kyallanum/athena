@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	config "github.com/kyallanum/athena/v1.0.0/models/config"
@@ -29,11 +28,11 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute(logger *log.Logger) error {
+func Execute() error {
 	if err := rootCmd.Execute(); err != nil {
 		return err
 	}
-	logger.Print("Athena v1.0.0 Starting")
+	fmt.Println("Athena v1.0.0 Starting")
 
 	fmt.Println("Getting Configuration File: ", configFile, "...")
 	configuration, err := config.CreateConfiguration(configFile)
