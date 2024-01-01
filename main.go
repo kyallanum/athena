@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/kyallanum/athena/cmd"
+	"github.com/kyallanum/athena/models/logger"
 )
 
 func main() {
+	logger := logger.New()
+
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Fprintln(os.Stderr, "\nAn error occured: ", err)
+			logger.Fatalf("\nAn error occured: \n\t%s", err)
 		}
 	}()
 
-	if err := cmd.Execute(); err != nil {
+	if err := cmd.Execute(logger); err != nil {
 		panic(err)
 	}
 }
