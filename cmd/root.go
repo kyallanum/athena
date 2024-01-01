@@ -80,7 +80,7 @@ func Execute() error {
 
 func init() {
 	rootCmd.Flags().StringVarP(&configFile, "config", "c", os.Getenv("ATHENA_CONFIG_FILE"), "")
-	rootCmd.Flags().StringVarP(&logFile, "file", "l", os.Getenv("ATHENA_LOG_FILE"), "")
+	rootCmd.Flags().StringVarP(&logFile, "log-file", "l", os.Getenv("ATHENA_LOG_FILE"), "")
 	rootCmd.Flags().StringVarP(&logOutput, "log-output", "o", os.Getenv("ATHENA_LOG_OUTPUT"), "")
 }
 

@@ -24,17 +24,15 @@ Athena has three main phases of execution:
 1. Log File Resolution
 1. Summary Output
 
-To run Athena, you can use either environment variables, or Command Line Flags. As a rule, environment variables take precedence over command line flags:
-```
-ATHENA_LOG_FILE=./examples/apt-term.log
-ATHENA_CONFIG_FILE=./examples/apt-term-config.json
-```
+To run Athena, you can use either environment variables, or Command Line Flags. As a rule, environment variables take precedence over command line flags. Please see [CLI Flags](#cli-flags) for more info.
 
-or:
-
-```
-./athena -c ./path/to/config.json -l ./path/to/file.log
-```
+## CLI Flags
+Athena has a few different command-line flags/environment variables a user needs to be aware of:
+| Flag            | Description                           | Required | Default | Environment Variable |
+|-----------------|---------------------------------------|----------|---------|----------------------|
+| -c/--config     | Configuration file for Athena to use. |   true   | N/A     | ATHENA_CONFIG_FILE   |
+| -l/--log-file   | The log file Athena should process.   |   true   | N/A     | ATHENA_LOG_FILE      |
+| -o/--log-output | The log file Athena should output to. |   false  | N/A     | ATHENA_LOG_OUTPUT    |
 
 ## Configuration File
 An athena configuration file is a JSON file that describes how Athena should process a log file. It makes use of a hierarchy of objects for instructions during execution. This can either be from a URL or a local file.
@@ -50,7 +48,7 @@ A rule should be considered certain information that Athena must follow to provi
 1. [Summary](#summary)
 
 ### Search Terms
-Search terms are a list of strings, in regular expression format that can be used to match to a line in a log file. Named groups using the format ``(?<group_name)`` can be used to store information in memory. This can later be accessed using the format: ``{{group_name}}``.
+Search terms are a list of strings, in regular expression format that can be used to match to a line in a log file. Named groups using the format ``(?<group_name>)`` can be used to store information in memory. This can later be accessed using the format: ``{{group_name}}``.
 
 **Guidelines for search terms**:
 1. You cannot reference a group that has not been defined in a previous search term.
@@ -73,6 +71,9 @@ Rule <Rule Name>:
 **Current Supported Operations**:  
 1. Count - Counts the number of times this ``<group_name>`` was extracted during the search phase.
 1. Print - Prints out a line for every instance of ``<group_name>`` that was extracted. If there are two "Print" operations, then the second one's data will match to the first one in each line.
+
+## Log Output
+Athena's logging is designed to output to the console with normal output, while outputting to a file with timestamps, log levels, and more. If you would like all information including debug logs, then set the ``ATHENA_LOG_OUTPUT`` environment variable or the ``-o/--log-output`` command-line flag.
 
 ---
 ##### Licensed under [Apache 2.0 License](https://opensource.org/license/apache-2-0/) (c) Kyal Lanum
