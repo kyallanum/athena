@@ -12,7 +12,6 @@ func AddFileLogger(logger *logrus.Logger, fileName string) {
 	if err != nil {
 		logger.Fatalf("An error occurred: \n\t%s", err.Error())
 	}
-	defer file.Close()
 
 	FileHook := &FormatterHook{
 		Writer: file,
@@ -32,7 +31,7 @@ func AddFileLogger(logger *logrus.Logger, fileName string) {
 	logger.AddHook(FileHook)
 }
 
-func New(fileName ...string) *logrus.Logger {
+func New() *logrus.Logger {
 	newLogger := logrus.New()
 	newLogger.SetOutput(io.Discard)
 	newLogger.SetLevel(logrus.InfoLevel)

@@ -5,9 +5,10 @@ import (
 
 	library "github.com/kyallanum/athena/models/library"
 	logs "github.com/kyallanum/athena/models/logs"
+	"github.com/sirupsen/logrus"
 )
 
-func ResolveRule(contents *logs.LogFile, rule *Rule) (*library.RuleData, error) {
+func ResolveRule(contents *logs.LogFile, rule *Rule, logger *logrus.Logger) (*library.RuleData, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve rule %s: \n\t%w", rule.Name, err)
 	}
@@ -18,7 +19,7 @@ func ResolveRule(contents *logs.LogFile, rule *Rule) (*library.RuleData, error) 
 	currentRuleData := library.NewRuleData()
 
 	for !allEntriesFound {
-		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved)
+		currentSearchTermData, err := resolveSearchTerms(contents, rule, &linesResolved, logger)
 		if err != nil {
 			return nil, wrapError(err)
 		}
