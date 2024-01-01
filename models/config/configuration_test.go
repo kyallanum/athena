@@ -3,6 +3,7 @@ package models
 import (
 	"bufio"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"testing"
 
 	logs "github.com/kyallanum/athena/models/logs"
+	"github.com/sirupsen/logrus"
 )
 
 func TestTranslateRegex(t *testing.T) {
@@ -139,6 +141,9 @@ func TestCreateConfigurationFromWeb(t *testing.T) {
 }
 
 func TestResolveRule(t *testing.T) {
+	logger := logrus.New()
+	logger.SetOutput(io.Discard)
+
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
@@ -148,7 +153,7 @@ func TestResolveRule(t *testing.T) {
 
 	currentRule := currentConfig.Rules[0]
 
-	ruleData, err := ResolveRule(logFile, &currentRule)
+	ruleData, err := ResolveRule(logFile, &currentRule, logger)
 	if err != nil {
 		t.Errorf("An error was returned when one should not have been: \n\t%s", err.Error())
 	}
@@ -166,6 +171,10 @@ func TestResolveRuleBadRule(t *testing.T) {
 			t.Errorf("%s", err.(error).Error())
 		}
 	}()
+
+	logger := logrus.New()
+	logger.SetOutput(io.Discard)
+
 	os.Stdout, _ = os.Open(os.DevNull)
 	defer os.Stdout.Close()
 
@@ -173,5 +182,5 @@ func TestResolveRuleBadRule(t *testing.T) {
 
 	currentRule := &Rule{}
 
-	ResolveRule(logFile, currentRule)
+	ResolveRule(logFile, currentRule, logger)
 }

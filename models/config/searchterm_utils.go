@@ -6,9 +6,10 @@ import (
 
 	library "github.com/kyallanum/athena/models/library"
 	logs "github.com/kyallanum/athena/models/logs"
+	"github.com/sirupsen/logrus"
 )
 
-func resolveSearchTerms(logFile *logs.LogFile, rule *Rule, linesResolved *[]int) (*library.SearchTermData, error) {
+func resolveSearchTerms(logFile *logs.LogFile, rule *Rule, linesResolved *[]int, logger *logrus.Logger) (*library.SearchTermData, error) {
 	wrapError := func(err error) error {
 		return fmt.Errorf("unable to resolve search terms for rule %s: \n\t%w", rule.Name, err)
 	}
@@ -47,7 +48,7 @@ func resolveSearchTerms(logFile *logs.LogFile, rule *Rule, linesResolved *[]int)
 		}
 
 		if rule.PrintLog {
-			fmt.Printf("%d: %s\n", fileIndex+1, currentLine)
+			logger.Infof("%d: %s", fileIndex+1, currentLine)
 		}
 
 		*linesResolved = append(*linesResolved, fileIndex)
