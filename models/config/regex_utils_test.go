@@ -1,88 +1,112 @@
 package models
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	library "github.com/kyallanum/athena/models/library"
 )
 
-func TestResolveLine(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Errorf("An error was returned improperly when calling resolveLine: \n\t%s", (err.(error)).Error())
-		}
-	}()
-	line := "test line 1"
-	regex := "stuff"
-
-	result := resolveLine(line, regex)
-	if result != nil {
-		t.Errorf("An incorrect object was returned when calling resolveLine")
-	}
-
-	regex = `(?P<test_name>line \d+)`
-	result = resolveLine(line, regex)
-
-	if reflect.TypeOf(result).String() != "*map[string]string" {
-		t.Errorf("resolveLine did not return the proper data type: \n\t%s", reflect.TypeOf(result).String())
-	}
+func createSearchTermTestData(reference, replace string) *library.SearchTermData {
+	st_data := library.NewSearchTermData()
+	st_data.AddValue(reference, replace)
+	return st_data
 }
 
-func TestResolveLineBadRegex(t *testing.T) {
-	defer func() {
-		if err := recover(); err == nil {
-			t.Errorf("An error was not returned properly when it should have")
-		} else if (err.(error)).Error() != "the provided regular expression cannot be compiled: \n\tregexp: Compile(`(stuff`): error parsing regexp: missing closing ): `(stuff`" {
-			t.Errorf("The improper error was returned when calling with a bad regex: \n\t%s", (err.(error)).Error())
-		}
-	}()
+func TestResolveLine(t *testing.T) {
+	testTable := []struct {
+		name           string
+		line           string
+		regex          string
+		expectedOutput *map[string]string
+		expectedError  any
+	}{
+		{
+			name:           "Test_Good_Regex_No_Match",
+			line:           "test line 1",
+			regex:          "stuff",
+			expectedOutput: nil,
+			expectedError:  nil,
+		},
+		{
+			name:           "Test_Good_Regex_With_Match",
+			line:           "test line 1",
+			regex:          `(?P<test_name>line \d+)`,
+			expectedOutput: &map[string]string{},
+			expectedError:  nil,
+		},
+		{
+			name:           "Test_Bad_Regex",
+			line:           "test line 1",
+			regex:          `(stuff`,
+			expectedOutput: nil,
+			expectedError:  fmt.Errorf("the provided regular expression cannot be compiled: \n\tregexp: Compile(`(stuff`): error parsing regexp: missing closing ): `(stuff`"),
+		},
+	}
 
-	line := "test line 1"
-	regex := "(stuff"
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			defer func() {
+				if err := recover(); !checkExpectedError(err, test.expectedError) {
+					t.Errorf("An error was returned improperly when calling resolveLine: \n\tExpected: %s\n\tReceived: %s", test.expectedError.(error).Error(), err.(error).Error())
+				}
+			}()
 
-	_ = resolveLine(line, regex)
+			result := resolveLine(test.line, test.regex)
+
+			if reflect.TypeOf(result).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("resolveLine returned unexpected output type: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(test.expectedError).String())
+			}
+		})
+	}
 }
 
 func TestTranslateSearchTermReference(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Errorf("An error was returned when it shouldn't have: \n\t%s", (err.(error).Error()))
-		}
-	}()
-
-	regex := `Testing {{test}}`
-	st_data := library.NewSearchTermData()
-	st_data.AddValue("test", "Test1")
-
-	newRegex, err := translateSearchTermReference(regex, st_data)
-	if err != nil {
-		t.Errorf("An error was returned when it shouldn't have: \n\t%s", err.Error())
+	testTable := []struct {
+		name           string
+		regex          string
+		st_data        *library.SearchTermData
+		expectedOutput string
+		expectedError  error
+	}{
+		{
+			name:           "Test_Good_Search_Term",
+			regex:          `Testing {{test}}`,
+			st_data:        createSearchTermTestData("test", "test1"),
+			expectedOutput: "Testing test1",
+			expectedError:  nil,
+		},
+		{
+			name:           "Test_Bad_Search_Term",
+			regex:          `Testing {{test}}`,
+			st_data:        createSearchTermTestData("bad_test", "test"),
+			expectedOutput: "",
+			expectedError:  fmt.Errorf("an error occurred when translating a search term reference. \n\tthe following key was not registered in a previous search term: test"),
+		},
 	}
 
-	if newRegex != "Testing Test1" {
-		t.Errorf("TranslateSearchTermReference returned the wrong value: \n\t%s", newRegex)
-	}
-}
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			defer func() {
+				if err := recover(); !checkExpectedError(err, test.expectedError) {
+					t.Errorf("An incorrect error was returned: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.(error).Error())
+				}
+			}()
 
-func TestTranslateSearchTermReferenceBadReference(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Errorf("An error was returned when it shouldn't have: \n\t%s", (err.(error).Error()))
-		}
-	}()
+			newRegex, err := translateSearchTermReference(test.regex, test.st_data)
+			if err != nil {
+				panic(err)
+			}
 
-	regex := `Testing {{test}}`
-	st_data := library.NewSearchTermData()
-	st_data.AddValue("bad_test", "testing")
+			if reflect.TypeOf(newRegex).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("TranslateSearchTermReference did not output the correct data type: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(newRegex).String())
+			}
 
-	_, err := translateSearchTermReference(regex, st_data)
-	if err == nil {
-		t.Errorf("An error was not returned when it should have.")
-	}
-
-	if err.Error() != "an error occurred when translating a search term reference. \n\tthe following key was not registered in a previous search term: test" {
-		t.Errorf("An improper error was returned when attempting to translate search term reference: \n\t%s", err.Error())
+			if newRegex != test.expectedOutput {
+				t.Errorf("TranslateSearchTermReference did not output the correct result: \n\tExpected: %s\n\tReceived: %s", test.expectedOutput, newRegex)
+			}
+		})
 	}
 }
 

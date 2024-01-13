@@ -3,6 +3,7 @@ package models
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,29 +12,60 @@ import (
 	"strings"
 	"testing"
 
+	models "github.com/kyallanum/athena/models/library"
 	logs "github.com/kyallanum/athena/models/logs"
 	"github.com/sirupsen/logrus"
 )
 
-func TestTranslateRegex(t *testing.T) {
-	regexToTranslate := "(?<test_name>)"
-	err := translateConfigurationNamedGroups(&regexToTranslate)
-
-	if err != nil {
-		t.Errorf("An error occurred while attempting to translate regex: \n\t%v", err)
+func checkExpectedError(actualError, expectedError any) bool {
+	if actualError == nil && expectedError == nil {
+		return true
 	}
 
-	if regexToTranslate != "(?P<test_name>)" {
-		t.Errorf("Regex was not translated properly.")
+	if actualError != nil {
+		if expectedError != nil {
+			if strings.Contains(actualError.(error).Error(), expectedError.(error).Error()) {
+				return true
+			}
+		}
 	}
+	return false
 }
 
-func TestTranslateRegexEmptyString(t *testing.T) {
-	regexToTranslate := ""
-	err := translateConfigurationNamedGroups(&regexToTranslate)
+func TestTranslateRegex(t *testing.T) {
+	testTable := []struct {
+		name           string
+		regex          string
+		expectedOutput string
+		expectedError  error
+	}{
+		{
+			name:           "Test_Good_Regex",
+			regex:          `(?<test_name>)`,
+			expectedOutput: `(?P<test_name>)`,
+			expectedError:  nil,
+		}, {
+			name:           "Test_Empty_Regex",
+			regex:          "",
+			expectedOutput: "",
+			expectedError:  fmt.Errorf("empty search terms are not allowed"),
+		},
+	}
 
-	if err.Error() != "empty search terms are not allowed" {
-		t.Errorf("Error was not properly returned when checking for empty string.")
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			regexToTranslate := test.regex
+
+			err := translateConfigurationNamedGroups(&regexToTranslate)
+
+			if !checkExpectedError(err, test.expectedError) {
+				t.Errorf("An error occurred while attempting to translate regex: \n\tExpected: %v\n\tReceived: %v\n\t", test.expectedError, err)
+			}
+
+			if regexToTranslate != test.expectedOutput {
+				t.Errorf("Regex was not translated properly \n\tExpected: %s\n\tReceived: %s", test.expectedOutput, regexToTranslate)
+			}
+		})
 	}
 }
 
@@ -60,29 +92,39 @@ func TestTranslateConfiguration(t *testing.T) {
 	configObject.TranslateConfiguration()
 }
 
-func TestCreateConfigurationFromFile(t *testing.T) {
-	config, err := CreateConfiguration("../../examples/apt-term-config.json")
-	if err != nil {
-		t.Errorf("Error returned during CreateConfiguration when there shouldn't have.")
+func TestCreateConfiguration(t *testing.T) {
+	testTable := []struct {
+		name           string
+		source         string
+		expectedOutput *Configuration
+		expectedError  error
+	}{
+		{
+			name:           "Test_From_Good_File",
+			source:         "../../examples/apt-term-config.json",
+			expectedOutput: &Configuration{},
+			expectedError:  nil,
+		},
+		{
+			name:           "Test_From_Bad_File",
+			source:         "bad_file_name",
+			expectedOutput: nil,
+			expectedError:  fmt.Errorf("unable to create configuration object: \n\tunable to get file information for file: bad_file_name. error: stat bad_file_name: no such file or directory"),
+		},
 	}
 
-	if config.Name != "Apt Terminal" {
-		t.Errorf("Name improperly returned from CreateConfiguration")
-	}
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			config, err := CreateConfiguration(test.source)
 
-	if reflect.TypeOf(config).String() != "*models.Configuration" {
-		t.Errorf("Improper type returned when running CreateConfiguration")
-	}
-}
+			if !checkExpectedError(err, test.expectedError) {
+				t.Errorf("Error was improperly returned from CreateConfiguration: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.Error())
+			}
 
-func TestCreateConfigurationFromFileBadFile(t *testing.T) {
-	_, err := CreateConfiguration("bad_file_name")
-	if err == nil {
-		t.Errorf("Error not returned when it should have after calling CreateConfiguration")
-	}
-
-	if err.Error() != "unable to create configuration object: \n\tunable to get file information for file: bad_file_name. error: stat bad_file_name: no such file or directory" {
-		t.Errorf("Error improperly returned when it should have. \nError: %s", err.Error())
+			if reflect.TypeOf(config).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("Improper type returned from CreateConfiguration: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(config).String())
+			}
+		})
 	}
 }
 
@@ -97,10 +139,10 @@ func TestCreateConfigurationFromWeb(t *testing.T) {
 	}
 
 	testTable := []struct {
-		name               string
-		server             *httptest.Server
-		expectedOutputType string
-		expectedErr        string
+		name           string
+		server         *httptest.Server
+		expectedOutput *Configuration
+		expectedError  error
 	}{
 		{
 			name: "good-test-create-web-config",
@@ -108,34 +150,31 @@ func TestCreateConfigurationFromWeb(t *testing.T) {
 				w.WriteHeader(http.StatusOK)
 				w.Write(configFileBytes)
 			})),
-			expectedOutputType: "*models.Configuration",
-			expectedErr:        "",
+			expectedOutput: &Configuration{},
+			expectedError:  nil,
 		},
 		{
 			name: "bad-test-create-web-config-404",
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 			})),
-			expectedOutputType: "*models.Configuration",
-			expectedErr:        "received status code 404 when attempting to get file",
+			expectedOutput: &Configuration{},
+			expectedError:  fmt.Errorf("received status code 404 when attempting to get file"),
 		},
 	}
 
-	for _, testServer := range testTable {
-		t.Run(testServer.name, func(t *testing.T) {
-			defer testServer.server.Close()
-			testWebSource, err := CreateConfiguration(testServer.server.URL)
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			defer test.server.Close()
+			testWebSource, err := CreateConfiguration(test.server.URL)
 
-			if reflect.TypeOf(testWebSource).String() != testServer.expectedOutputType {
-				t.Errorf("Create Configuration returned the wrong output type for web configuration")
+			if reflect.TypeOf(testWebSource).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("Create Configuration returned the wrong output type for web configuration: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(testWebSource).String())
 			}
 
-			if (err != nil) && (testServer.expectedErr != "") {
-				if !strings.Contains(err.Error(), testServer.expectedErr) {
-					t.Errorf("Create Configuration returned an improper error when using incorrect web URL")
-				}
+			if !checkExpectedError(err, test.expectedError) {
+				t.Errorf("Create Configuration returned an improper error when using incorrect web URL: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.Error())
 			}
-
 		})
 	}
 }
@@ -144,43 +183,42 @@ func TestResolveRule(t *testing.T) {
 	logger := logrus.New()
 	logger.SetOutput(io.Discard)
 
-	os.Stdout, _ = os.Open(os.DevNull)
-	defer os.Stdout.Close()
-
 	logFile, _ := logs.LoadLogFile("../../examples/apt-term.log")
-
 	currentConfig, _ := CreateConfiguration("../../examples/apt-term-config.json")
 
-	currentRule := currentConfig.Rules[0]
-
-	ruleData, err := ResolveRule(logFile, &currentRule, logger)
-	if err != nil {
-		t.Errorf("An error was returned when one should not have been: \n\t%s", err.Error())
+	testTable := []struct {
+		name           string
+		currentRule    *Rule
+		expectedOutput *models.RuleData
+		expectedError  error
+	}{
+		{
+			name:           "Test_Good_Rule",
+			currentRule:    &currentConfig.Rules[0],
+			expectedOutput: &models.RuleData{},
+			expectedError:  nil,
+		},
+		{
+			name:           "Test_Bad_Rule",
+			currentRule:    &Rule{},
+			expectedOutput: nil,
+			expectedError:  fmt.Errorf("unable to resolve search terms for rule : \n\truntime error: index out of range [0] with length 0"),
+		},
 	}
 
-	if reflect.TypeOf(ruleData).String() != "*models.RuleData" {
-		t.Errorf("The incorrect datatype was not returned: \n\t%s", reflect.TypeOf(ruleData).String())
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			defer func() {
+				if err := recover(); !checkExpectedError(err, test.expectedError) {
+					t.Errorf("The expected error was not returned: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.(error).Error())
+				}
+			}()
+
+			ruleData, _ := ResolveRule(logFile, test.currentRule, logger)
+
+			if reflect.TypeOf(ruleData).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("The incorrect datatype was not returned: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.currentRule).String(), reflect.TypeOf(ruleData).String())
+			}
+		})
 	}
-}
-
-func TestResolveRuleBadRule(t *testing.T) {
-	defer func() {
-		if err := recover(); err == nil {
-			t.Errorf("An error was not returned when one should have been.")
-		} else if (err.(error)).Error() != "unable to resolve search terms for rule : \n\truntime error: index out of range [0] with length 0" {
-			t.Errorf("%s", err.(error).Error())
-		}
-	}()
-
-	logger := logrus.New()
-	logger.SetOutput(io.Discard)
-
-	os.Stdout, _ = os.Open(os.DevNull)
-	defer os.Stdout.Close()
-
-	logFile, _ := logs.LoadLogFile("../examples/apt-term.log")
-
-	currentRule := &Rule{}
-
-	ResolveRule(logFile, currentRule, logger)
 }
