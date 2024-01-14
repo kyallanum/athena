@@ -130,7 +130,7 @@ func printSummary(library *library.Library, logger *logrus.Logger) error {
 	logger.Infof("\n--------------- %s Log File Summary ---------------\n", libraryName)
 	libraryKeys := library.LibraryKeys()
 	for _, rule := range libraryKeys {
-		logger.Infof("Rule: %s\n", rule)
+		logger.Infof("Rule: %s", rule)
 		ruleData, _ := library.RuleData(rule)
 		summaryDataLen := ruleData.SummaryDataLen()
 		if summaryDataLen == 0 {

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -27,14 +26,16 @@ func TestNewWebSource(t *testing.T) {
 	}
 
 	for _, testServer := range testTable {
-		testWebSource := NewWebSource(testServer.server.URL)
-		if testWebSource.SourceType() != "web" {
-			t.Errorf("Config source type not set properly.")
-		}
+		t.Run(testServer.name, func(t *testing.T) {
+			testWebSource := NewWebSource(testServer.server.URL)
+			if testWebSource.SourceType() != "web" {
+				t.Errorf("Config source type not set properly.")
+			}
 
-		if reflect.TypeOf(testWebSource).String() != "*models.WebSource" {
-			t.Errorf("Config source not of the right type.")
-		}
+			if reflect.TypeOf(testWebSource).String() != "*models.WebSource" {
+				t.Errorf("Config source not of the right type.")
+			}
+		})
 	}
 
 }
@@ -68,28 +69,22 @@ func TestLoadWebConfig(t *testing.T) {
 		},
 	}
 
-	for _, testServer := range testTable {
-		t.Run(testServer.name, func(t *testing.T) {
-			defer testServer.server.Close()
-			testWebSource := NewWebSource(testServer.server.URL)
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			defer test.server.Close()
+			testWebSource := NewWebSource(test.server.URL)
 			configFileString, err := testWebSource.Config()
 
-			if reflect.TypeOf(configFileString).String() != reflect.TypeOf(testServer.expectedOutput).String() {
+			if reflect.TypeOf(configFileString).String() != reflect.TypeOf(test.expectedOutput).String() {
 				t.Errorf("LoadConfig does not return the correct type.")
 			}
 
-			if !reflect.DeepEqual(configFileString, testServer.expectedOutput) {
+			if !reflect.DeepEqual(configFileString, test.expectedOutput) {
 				t.Errorf("LoadConfig did not output the expected data.")
 			}
 
-			if !(err == nil && testServer.expectedErr == nil) {
-				if reflect.TypeOf(err.Error()).String() != reflect.TypeOf(testServer.expectedErr.Error()).String() {
-					t.Errorf("Error not of the same type as expected error.")
-				}
-			}
-
-			if err != nil && !strings.Contains(err.Error(), testServer.expectedErr.Error()) {
-				t.Errorf("Error improperly created when loading config.")
+			if !checkExpectedError(err, test.expectedErr) {
+				t.Errorf("Error returned improperly: \n\tExpected: %s\n\tReceived: %s", test.expectedErr.Error(), err.Error())
 			}
 		})
 

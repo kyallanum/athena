@@ -1,86 +1,165 @@
 package models
 
 import (
+	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 )
 
-func TestCreateNewSearchTermData(t *testing.T) {
-	st_data := NewSearchTermData()
+func TestCreateNewSearchTermDatas(t *testing.T) {
+	testTable := []struct {
+		name           string
+		expectedOutput *SearchTermData
+	}{
+		{
+			name: "Test_New_Search_Term_Data",
+			expectedOutput: &SearchTermData{
+				data: map[string]string{},
+			},
+		},
+	}
 
-	if reflect.TypeOf(st_data).String() != "*models.SearchTermData" {
-		t.Errorf("Creating new SearchTermData returned the wrong type")
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			stData := NewSearchTermData()
+			if reflect.TypeOf(stData).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("Creating new SearchTermData returned the wrong data type: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(stData).String())
+			}
+
+			if !reflect.DeepEqual(stData.data, test.expectedOutput.data) {
+				t.Errorf("Creating new SearchTermData returned the wrong data: \n\tExpected: %v\n\tReceived: %v", test.expectedOutput.data, stData.data)
+			}
+		})
 	}
 }
 
 func TestSearchTermDataGetKeys(t *testing.T) {
-	st_data := NewSearchTermData()
-	st_data.AddValue("test1", "testing")
-	st_data.AddValue("test2", "testing")
-
-	keys_returned := st_data.Keys()
-
-	if len(keys_returned) != 2 {
-		t.Errorf("Get Keys returned the wrong number of keys")
+	testTable := []struct {
+		name           string
+		searchTermData *SearchTermData
+		expectedOutput []string
+	}{
+		{
+			name: "Test_Get_Keys_Good_Data",
+			searchTermData: &SearchTermData{
+				data: map[string]string{
+					"test1": "Testing 1",
+					"test2": "Testing 2",
+				},
+			},
+			expectedOutput: []string{"test1", "test2"},
+		},
+		{
+			name: "Test_Get_Keys_No_Keys",
+			searchTermData: &SearchTermData{
+				data: map[string]string{},
+			},
+			expectedOutput: nil,
+		},
 	}
 
-	if reflect.TypeOf(keys_returned).String() != "[]string" {
-		t.Errorf("Get Keys returned the wrong datatype")
-	}
-}
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			keysReturned := test.searchTermData.Keys()
 
-func TestSearchTermDataGetKeysNoKeys(t *testing.T) {
-	st_data := NewSearchTermData()
+			if reflect.TypeOf(keysReturned).String() != reflect.TypeOf(test.expectedOutput).String() {
+				t.Errorf("Get Keys returned the wrong data type: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(keysReturned).String())
+			}
 
-	keys_returned := st_data.Keys()
+			sort.Strings(keysReturned)
+			sort.Strings(test.expectedOutput)
 
-	if keys_returned != nil {
-		t.Errorf("Get Keys returned the wrong answer with no keys")
-	}
-}
-
-func TestGetValue(t *testing.T) {
-	st_data := NewSearchTermData()
-	st_data.AddValue("test1", "testing")
-
-	currentValue, err := st_data.Value("test1")
-	if err != nil {
-		t.Errorf("Error improperly returned when getting value.")
-	}
-
-	if currentValue != "testing" {
-		t.Errorf("Value improperly returned when getting value.")
-	}
-
-	if reflect.TypeOf(currentValue).String() != "string" {
-		t.Errorf("GetValue returned improper datatype")
-	}
-}
-
-func TestGetValueWrongValue(t *testing.T) {
-	st_data := NewSearchTermData()
-
-	_, err := st_data.Value("test1")
-
-	if err == nil {
-		t.Errorf("Error not returned when it should have.")
-	}
-
-	if err.Error() != "could not find key: test1 in searchtermdata" {
-		t.Errorf("Error improperly returned when getting new searchtermdata")
+			if !reflect.DeepEqual(keysReturned, test.expectedOutput) {
+				t.Errorf("Get Keys returned the wrong data: \n\tExpected: %v\n\tReceived: %v", test.expectedOutput, keysReturned)
+			}
+		})
 	}
 }
 
-func TestAddValue(t *testing.T) {
-	st_data := NewSearchTermData()
-
-	err := st_data.AddValue("test1", "testing")
-	if err != nil {
-		t.Errorf("Error returned when there should not have been")
+func TestGetValues(t *testing.T) {
+	testTable := []struct {
+		name           string
+		key            string
+		searchTermData *SearchTermData
+		expectedOutput string
+		expectedError  error
+	}{
+		{
+			name: "Test_Get_Valuee_Good_Data",
+			key:  "test1",
+			searchTermData: &SearchTermData{
+				data: map[string]string{
+					"test1": "testing",
+				},
+			},
+			expectedOutput: "testing",
+			expectedError:  nil,
+		},
+		{
+			name: "Test_Get_Value_Wrong_Key",
+			key:  "test1",
+			searchTermData: &SearchTermData{
+				data: map[string]string{},
+			},
+			expectedOutput: "",
+			expectedError:  fmt.Errorf("could not find key: test1 in searchtermdata"),
+		},
 	}
 
-	err = st_data.AddValue("test1", "another test")
-	if err.Error() != "unable to set value: another test for key: test1 - data is readonly" {
-		t.Errorf("Error improperly returned when attempting to overwrite data")
+	for _, test := range testTable {
+		currentValue, err := test.searchTermData.Value(test.key)
+		if !checkExpectedError(err, test.expectedError) {
+			t.Errorf("Get Value returned an unexpected error: \n\tExpected: %v\n\tReceived: %v", test.expectedError, err)
+		}
+
+		if reflect.TypeOf(currentValue).String() != reflect.TypeOf(test.expectedOutput).String() {
+			t.Errorf("Get Value returned unexpected data type: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(currentValue).String())
+		}
+
+		if currentValue != test.expectedOutput {
+			t.Errorf("Get Value returned incorrect data: \n\tExpected: %v\n\tReceived: %v", test.expectedOutput, currentValue)
+		}
+	}
+}
+
+func TestAddValues(t *testing.T) {
+	testTable := []struct {
+		name          string
+		keysToAdd     []string
+		valuesToAdd   []string
+		expectedError error
+	}{
+		{
+			name:          "Test_Good_Values",
+			keysToAdd:     []string{"test1"},
+			valuesToAdd:   []string{"testing"},
+			expectedError: nil,
+		},
+		{
+			name:          "Test_Overwrite_Error",
+			keysToAdd:     []string{"test1", "test1"},
+			valuesToAdd:   []string{"testing", "another test"},
+			expectedError: fmt.Errorf("unable to set value: another test for key: test1 - data is readonly"),
+		},
+	}
+
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			var err error
+			st_data := NewSearchTermData()
+
+			for index, keyToAdd := range test.keysToAdd {
+				err = st_data.AddValue(keyToAdd, test.valuesToAdd[index])
+
+				if err != nil {
+					break
+				}
+			}
+
+			if !checkExpectedError(err, test.expectedError) {
+				t.Errorf("SearchTermData.AddValue did not return the expected error: \n\tExpected: %v\n\tReceived: %v", test.expectedError, err)
+			}
+		})
 	}
 }

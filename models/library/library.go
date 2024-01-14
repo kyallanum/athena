@@ -34,6 +34,7 @@ func (library *Library) LibraryKeys() (rule_data_keys []string) {
 	rule_data_index := 0
 	for key := range library.rule_data_collection {
 		rule_data_keys[rule_data_index] = key
+		rule_data_index++
 	}
 
 	return rule_data_keys
