@@ -63,7 +63,7 @@ func TestTranslateRegex(t *testing.T) {
 			}
 
 			if regexToTranslate != test.expectedOutput {
-				t.Errorf("Regex was not translated properly \n\tExpected: %s\n\tReceived: %s", test.expectedOutput, regexToTranslate)
+				t.Errorf("Regex was not translated properly \n\tExpected: %v\n\tReceived: %v", test.expectedOutput, regexToTranslate)
 			}
 		})
 	}
@@ -118,11 +118,11 @@ func TestCreateConfiguration(t *testing.T) {
 			config, err := CreateConfiguration(test.source)
 
 			if !checkExpectedError(err, test.expectedError) {
-				t.Errorf("Error was improperly returned from CreateConfiguration: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.Error())
+				t.Errorf("Error was improperly returned from CreateConfiguration: \n\tExpected: %v\n\tReceived: %v", test.expectedError.Error(), err.Error())
 			}
 
 			if reflect.TypeOf(config).String() != reflect.TypeOf(test.expectedOutput).String() {
-				t.Errorf("Improper type returned from CreateConfiguration: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(config).String())
+				t.Errorf("Improper type returned from CreateConfiguration: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(config).String())
 			}
 		})
 	}
@@ -169,11 +169,11 @@ func TestCreateConfigurationFromWeb(t *testing.T) {
 			testWebSource, err := CreateConfiguration(test.server.URL)
 
 			if reflect.TypeOf(testWebSource).String() != reflect.TypeOf(test.expectedOutput).String() {
-				t.Errorf("Create Configuration returned the wrong output type for web configuration: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(testWebSource).String())
+				t.Errorf("Create Configuration returned the wrong output type for web configuration: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(testWebSource).String())
 			}
 
 			if !checkExpectedError(err, test.expectedError) {
-				t.Errorf("Create Configuration returned an improper error when using incorrect web URL: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.Error())
+				t.Errorf("Create Configuration returned an improper error when using incorrect web URL: \n\tExpected: %v\n\tReceived: %v", test.expectedError.Error(), err.Error())
 			}
 		})
 	}
@@ -210,14 +210,14 @@ func TestResolveRule(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			defer func() {
 				if err := recover(); !checkExpectedError(err, test.expectedError) {
-					t.Errorf("The expected error was not returned: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.(error).Error())
+					t.Errorf("The expected error was not returned: \n\tExpected: %v\n\tReceived: %v", test.expectedError.Error(), err.(error).Error())
 				}
 			}()
 
 			ruleData, _ := ResolveRule(logFile, test.currentRule, logger)
 
 			if reflect.TypeOf(ruleData).String() != reflect.TypeOf(test.expectedOutput).String() {
-				t.Errorf("The incorrect datatype was not returned: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.currentRule).String(), reflect.TypeOf(ruleData).String())
+				t.Errorf("The incorrect datatype was not returned: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.currentRule).String(), reflect.TypeOf(ruleData).String())
 			}
 		})
 	}

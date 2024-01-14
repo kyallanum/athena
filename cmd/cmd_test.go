@@ -13,6 +13,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func checkExpectedError(actualError, expectedError any) bool {
+	if actualError == nil && expectedError == nil {
+		return true
+	}
+
+	if actualError != nil {
+		if expectedError != nil {
+			if strings.Contains(actualError.(error).Error(), expectedError.(error).Error()) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func TestResolveFile(t *testing.T) {
 	logger := logrus.New()
 	logger.SetOutput(io.Discard)
@@ -27,7 +42,7 @@ func TestResolveFile(t *testing.T) {
 		expectedResolveError    error
 	}{
 		{
-			name:                    "Test good log and configuration file",
+			name:                    "Test_Good_Log_And_Configuration_File",
 			fileName:                "../examples/apt-term.log",
 			configFile:              "../examples/apt-term-config.json",
 			expectedReturn:          &models.Library{},
@@ -36,56 +51,45 @@ func TestResolveFile(t *testing.T) {
 			expectedResolveError:    nil,
 		},
 		{
-			name:                    "Test bad log file",
+			name:                    "Test_Bad_Log_File",
 			fileName:                "../examples/apt-term-bad.log",
 			configFile:              "../examples/apt-term-config.json",
 			expectedReturn:          nil,
 			expectedLogFileError:    fmt.Errorf("../examples/apt-term-bad.log: no such file or directory"),
 			expectedConfigFileError: nil,
-			expectedResolveError:    nil,
+			expectedResolveError:    fmt.Errorf("log file contains no contents"),
 		},
 		{
-			name:                    "Test bad config file",
+			name:                    "Test_Bad_Config_File",
 			fileName:                "../examples/apt-term.log",
 			configFile:              "../examples/apt-term-config-bad.json",
 			expectedReturn:          nil,
 			expectedLogFileError:    nil,
 			expectedConfigFileError: fmt.Errorf("../examples/apt-term-config-bad.json: no such file or directory"),
-			expectedResolveError:    nil,
+			expectedResolveError:    fmt.Errorf("configuration file has no contents"),
 		},
 	}
 
-	for _, currentTest := range testTable {
-		t.Run(currentTest.name, func(t *testing.T) {
-			logFile, err := logs.LoadLogFile(currentTest.fileName)
-			if err != currentTest.expectedLogFileError {
-				if !strings.Contains(err.Error(), currentTest.expectedLogFileError.Error()) {
-					t.Errorf("Error was incorrectly thrown while loading log file when it shouldn't have: \n\t%s", err.Error())
-				}
-				return
+	for _, test := range testTable {
+		t.Run(test.name, func(t *testing.T) {
+			logFile, err := logs.LoadLogFile(test.fileName)
+			if !checkExpectedError(err, test.expectedLogFileError) {
+				t.Errorf("Error was incorrectly thrown while loading log file when it shouldn't have: \n\tExpected: %v\n\tReceived: %v", test.expectedLogFileError, err)
 			}
-			configFile, err := config.CreateConfiguration(currentTest.configFile)
-			if err != currentTest.expectedConfigFileError {
-				if !strings.Contains(err.Error(), currentTest.expectedConfigFileError.Error()) {
-					t.Errorf("Error was incorrectly thrown while loading configuration file when it shouldn't have: \n\t%s", err.Error())
-				}
-				return
+			configFile, err := config.CreateConfiguration(test.configFile)
+			if !checkExpectedError(err, test.expectedConfigFileError) {
+				t.Errorf("Error was incorrectly thrown while loading configuration file when it shouldn't have: \n\tExpected: %v\n\tReceived: %v", test.expectedConfigFileError, err)
 			}
 
 			library, err := resolveLogFile(logFile, configFile, logger)
-			if err != currentTest.expectedResolveError {
-				if !strings.Contains(err.Error(), currentTest.expectedResolveError.Error()) {
-					t.Errorf("Error was incorrectly thrown while resolving log file: \n\t%s", err.Error())
-				}
-				return
+			if !checkExpectedError(err, test.expectedResolveError) {
+				t.Errorf("Error was incorrectly thrown while resolving log file: \n\tExpected: %v\n\tReceived: %v", test.expectedResolveError, err)
 			}
 
-			if reflect.TypeOf(library).String() != reflect.TypeOf(currentTest.expectedReturn).String() {
-				t.Errorf("Log file resolution did not return the proper type: %s", reflect.TypeOf(library).String())
+			if reflect.TypeOf(library).String() != reflect.TypeOf(test.expectedReturn).String() {
+				t.Errorf("Log file resolution did not return the proper type: Expected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedReturn).String(), reflect.TypeOf(library).String())
 			}
-
 		})
-
 	}
 }
 
@@ -120,8 +124,8 @@ func TestConfigErrors(t *testing.T) {
 
 			_, err := resolveLogFile(logFile, test.configuration, logger)
 
-			if err.Error() != test.expectedError.Error() {
-				t.Errorf("Error was not properly returned when checking configuration: %s", err.Error())
+			if !checkExpectedError(err, test.expectedError) {
+				t.Errorf("Error was not properly returned when checking configuration: \n\tExpected: %v\n\tReceived: %v", test.expectedError, err)
 			}
 		})
 	}

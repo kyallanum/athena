@@ -50,11 +50,11 @@ func TestLibraryGetName(t *testing.T) {
 			current_library_name, err := current_library.Name()
 
 			if !checkExpectedError(err, test.expectedError) {
-				t.Errorf("An unexpected error occurred when getting the name for the Library: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.Error())
+				t.Errorf("An unexpected error occurred when getting the name for the Library: \n\tExpected: %v\n\tReceived: %v", test.expectedError.Error(), err.Error())
 			}
 
 			if current_library_name != test.expectedOutput {
-				t.Errorf("Library name was not returned properly: \n\tExpected: %s\n\tReceived: %s", test.expectedOutput, current_library_name)
+				t.Errorf("Library name was not returned properly: \n\tExpected: %v\n\tReceived: %v", test.expectedOutput, current_library_name)
 			}
 		})
 	}
@@ -94,7 +94,7 @@ func TestGetLibraryKeys(t *testing.T) {
 
 			if !reflect.DeepEqual(libraryKeys, test.expectedOutput) {
 
-				t.Errorf("Unexpected return from getting library keys: \n\tExpected: %s\n\tReceived: %s", libraryKeys, test.expectedOutput)
+				t.Errorf("Unexpected return from getting library keys: \n\tExpected: %v\n\tReceived: %v", libraryKeys, test.expectedOutput)
 			}
 		})
 	}
@@ -136,11 +136,11 @@ func TestGetRuleData(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			newRuleData, err := test.library.RuleData(test.ruleToExtract)
 			if !checkExpectedError(err, test.expectedError) {
-				t.Errorf("Library did not return the right error data: \n\tExpected: %s\n\tReceived: %s", test.expectedError, err)
+				t.Errorf("Library did not return the right error data: \n\tExpected: %v\n\tReceived: %v", test.expectedError, err)
 			}
 
 			if reflect.TypeOf(newRuleData).String() != reflect.TypeOf(test.expectedOutput).String() {
-				t.Errorf("Library did not return the proper data type: \n\tExpected: %s\n\tReceived: %s", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(newRuleData).String())
+				t.Errorf("Library did not return the proper data type: \n\tExpected: %v\n\tReceived: %v", reflect.TypeOf(test.expectedOutput).String(), reflect.TypeOf(newRuleData).String())
 			}
 		})
 	}
@@ -192,7 +192,7 @@ func TestAddRuleDatas(t *testing.T) {
 			}
 
 			if !checkExpectedError(err, test.expectedError) {
-				t.Errorf("AddRuleData returned an unexpected error: \n\tExpected: %s\n\tReceived: %s", test.expectedError.Error(), err.Error())
+				t.Errorf("AddRuleData returned an unexpected error: \n\tExpected: %v\n\tReceived: %v", test.expectedError.Error(), err.Error())
 			}
 		})
 	}
